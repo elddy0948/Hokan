@@ -7,8 +7,17 @@
 
 class VulkanInstance {
 public:
-	VkResult createInstance(std::vector<const char*> layers, std::vector<const char*> extensions, const char* appName);
+	VulkanInstance() = default;
+	VulkanInstance(const VulkanInstance& rhs) = delete;
+	VulkanInstance& operator=(const VulkanInstance& rhs) = delete;
+	~VulkanInstance();
+
+public:
+	VkResult createInstance(std::vector<const char*>& layers, std::vector<const char*>& extensions, const char* appName);
 	void destroyInstance();
+
+	VkInstance* getInstance() { return &instance; }
+	VulkanLayerAndExtension* getLayerExtension() { return &layerExtension; }
 
 private:
 	VkInstance instance;

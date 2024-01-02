@@ -15,13 +15,16 @@ public:
 	VkResult getExtensionProperties(LayerProperties& layerProperties, VkPhysicalDevice* physicalDevice = NULL);
 	VkResult getDeviceExtensionProperties(VkPhysicalDevice* physicalDevice);
 
-	void setInstanceLayerNames(std::vector<const char*> names) { instanceLayerNames = names; }
-	void setInstanceExtensionNames(std::vector<const char*> names) { instanceExtensionNames = names; }
+	void setExtensionNames(std::vector<const char*> names) { appRequestedExtensionNames = names; }
+	void setLayerNames(std::vector<const char*> names) { appRequestedLayerNames = names; }
+
+	std::vector<const char*> getLayerNames() { return appRequestedLayerNames; }
+	std::vector<const char*> getExtensionNames() { return appRequestedExtensionNames; }
 
 private:
 	std::vector<LayerProperties> layerPropertyList;
-	std::vector<const char*> instanceLayerNames;
-	std::vector<const char*> instanceExtensionNames;
+	std::vector<const char*> appRequestedExtensionNames;
+	std::vector<const char*> appRequestedLayerNames;
 };
 
 #endif /* !VULKAN_LAYER_AND_EXTENSION_H */

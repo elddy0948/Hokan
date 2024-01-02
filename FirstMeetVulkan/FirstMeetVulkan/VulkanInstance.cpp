@@ -1,12 +1,15 @@
 #include "VulkanInstance.h"
 
-VkResult VulkanInstance::createInstance(std::vector<const char*> layers, std::vector<const char*> extensions, const char* appName) {
+
+VulkanInstance::~VulkanInstance() {}
+
+VkResult VulkanInstance::createInstance(std::vector<const char*>& layers, std::vector<const char*>& extensions, const char* appName) {
 	VkApplicationInfo appInfo{};
 	VkInstanceCreateInfo createInfo{}; 
 	VkResult result;
 
-	layerExtension.setInstanceLayerNames(layers);
-	layerExtension.setInstanceExtensionNames(layers);
+	layerExtension.setLayerNames(layers);
+	layerExtension.setExtensionNames(extensions);
 
 	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 	appInfo.pNext = nullptr;

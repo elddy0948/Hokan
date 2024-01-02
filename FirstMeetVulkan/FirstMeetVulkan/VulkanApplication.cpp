@@ -21,3 +21,18 @@ VulkanApplication* VulkanApplication::GetApp() {
 void VulkanApplication::initialize() {
 	instance.createInstance(layerNames, instanceExtensionNames, AppName);
 }
+
+VkResult VulkanApplication::enumeratePhysicalDevices(std::vector<VkPhysicalDevice>& devices)
+{
+	uint32_t deviceCount;
+	VkResult result;
+
+	result = vkEnumeratePhysicalDevices(*instance.getInstance(), &deviceCount, nullptr);
+
+	if (result) { return result; }
+	if (deviceCount == 0) { return VK_INCOMPLETE; }
+
+	devices.resize(deviceCount);
+	result = vkEnumeratePhysicalDevices(*instance.getInstance(), &deviceCount, devices.data());
+	return  result;
+}

@@ -1,4 +1,5 @@
 #include "VulkanLayerAndExtension.h"
+#include "VulkanApplication.h"
 
 VulkanLayerAndExtension::VulkanLayerAndExtension() {
 	layerPropertyList = {};
@@ -80,5 +81,32 @@ VkResult VulkanLayerAndExtension::getExtensionProperties(LayerProperties& layerP
 }
 
 VkResult VulkanLayerAndExtension::getDeviceExtensionProperties(VkPhysicalDevice* physicalDevice) {
-	return VK_INCOMPLETE;
+	VkResult result = VK_INCOMPLETE;
+
+	std::cout << "\nDevice extensions\n";
+	std::cout << "============================================================\n";
+
+	VulkanApplication* app = VulkanApplication::GetApp();
+	std::vector<LayerProperties>* instanceLayerProperties = &app->getInstance()->getLayerExtension()->layerPropertyList;
+
+	for (auto globalLayerProperty : *instanceLayerProperties) {
+		LayerProperties layerProperties;
+		layerProperties.properties = globalLayerProperty.properties;
+		if (result = getExtensionProperties(layerProperties, physicalDevice))
+			continue;
+	
+		std::cout << '\n' << globalLayerProperty.properties.description << "\n\t|\n\t|---[Layer Name]--> " << globalLayerProperty.properties.layerName << '\n';
+		layerPropertyList.push_back(layerProperties);
+
+		if (layerProperties.extensions.size()) {
+			for (const auto& extension : layerProperties.extensions) {
+				std::cout << "\n\t\t|\n\t\t|---[Device Extension]--> " << extension.extensionName << '\n';
+			}
+		}
+		else {
+			std::cout << "\n\t\t|\n\t\t|---[Device Extension]--> No Extension Found.\n";
+		}
+	}
+
+	return result;
 }

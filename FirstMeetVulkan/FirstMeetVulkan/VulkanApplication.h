@@ -15,7 +15,8 @@ public:
 public:
 	static VulkanApplication* GetApp();
 	void initialize();
-
+	VkResult enumeratePhysicalDevices(std::vector<VkPhysicalDevice>& devices);
+	VulkanInstance* getInstance() { return &instance; }
 private:
 	static std::unique_ptr<VulkanApplication> app;
 	static std::once_flag onlyOnce;

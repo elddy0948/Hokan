@@ -11,9 +11,12 @@ std::vector<const char*> layerNames = {
 
 int main(void) {
 	VulkanApplication* app = VulkanApplication::GetApp();
+	std::vector<VkPhysicalDevice> gpus;
 
 	app->initialize();
 
+	app->enumeratePhysicalDevices(gpus);
+	app->getInstance()->getLayerExtension()->getDeviceExtensionProperties(&gpus[0]);
 	while (true) {}
 	return 0;
 }

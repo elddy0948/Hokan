@@ -14,7 +14,7 @@ public:
 
 public:
 	static VulkanApplication* GetApp();
-	VkResult createVulkanInstance(std::vector<const char*> layers, std::vector<const char*> extensions);
+	void initialize();
 
 private:
 	static std::unique_ptr<VulkanApplication> app;

@@ -20,7 +20,7 @@ public:
 	VulkanLayerAndExtension* getLayerExtension() { return &layerExtension; }
 
 private:
-	VkInstance instance;
+	VkInstance instance = nullptr;
 	VulkanLayerAndExtension layerExtension;
 };
 

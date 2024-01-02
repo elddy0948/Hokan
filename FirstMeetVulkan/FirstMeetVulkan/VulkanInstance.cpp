@@ -1,6 +1,5 @@
 #include "VulkanInstance.h"
 
-
 VulkanInstance::~VulkanInstance() {}
 
 VkResult VulkanInstance::createInstance(std::vector<const char*>& layers, std::vector<const char*>& extensions, const char* appName) {

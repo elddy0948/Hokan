@@ -1,5 +1,15 @@
 #include "VulkanLayerAndExtension.h"
 
+VulkanLayerAndExtension::VulkanLayerAndExtension() {
+	layerPropertyList = {};
+	appRequestedExtensionNames = {};
+	appRequestedLayerNames = {};
+}
+
+VulkanLayerAndExtension::~VulkanLayerAndExtension() {
+
+}
+
 VkResult VulkanLayerAndExtension::getInstanceLayerProperties() {
 	uint32_t instanceLayerCount;
 	std::vector<VkLayerProperties> layerProperties;

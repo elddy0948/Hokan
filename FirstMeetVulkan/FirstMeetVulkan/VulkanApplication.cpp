@@ -3,6 +3,9 @@
 std::unique_ptr<VulkanApplication> VulkanApplication::app;
 std::once_flag VulkanApplication::onlyOnce;
 
+extern std::vector<const char*> instanceExtensionNames;
+extern std::vector<const char*> layerNames;
+
 VulkanApplication::VulkanApplication() {
 	instance.getLayerExtension()->getInstanceLayerProperties();
 }
@@ -15,7 +18,6 @@ VulkanApplication* VulkanApplication::GetApp() {
 	return app.get();
 }
 
-VkResult VulkanApplication::createVulkanInstance(std::vector<const char*> layers, std::vector<const char*> extensions) {
-	return instance.createInstance(layers, extensions, AppName);
+void VulkanApplication::initialize() {
+	instance.createInstance(layerNames, instanceExtensionNames, AppName);
 }
-

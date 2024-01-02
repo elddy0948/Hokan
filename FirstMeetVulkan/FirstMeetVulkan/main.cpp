@@ -12,8 +12,8 @@ std::vector<const char*> layerNames = {
 int main(void) {
 	VulkanApplication* app = VulkanApplication::GetApp();
 
-	app->createVulkanInstance(layerNames, instanceExtensionNames);
-	  
+	app->initialize();
+
 	while (true) {}
 	return 0;
 }

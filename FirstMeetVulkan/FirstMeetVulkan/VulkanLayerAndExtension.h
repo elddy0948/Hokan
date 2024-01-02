@@ -11,6 +11,12 @@ struct LayerProperties {
 
 class VulkanLayerAndExtension {
 public:
+	VulkanLayerAndExtension();
+	VulkanLayerAndExtension(const VulkanLayerAndExtension& rhs) = delete;
+	VulkanLayerAndExtension& operator=(const VulkanLayerAndExtension& rhs) = delete;
+	~VulkanLayerAndExtension();
+
+public:
 	VkResult getInstanceLayerProperties();
 	VkResult getExtensionProperties(LayerProperties& layerProperties, VkPhysicalDevice* physicalDevice = NULL);
 	VkResult getDeviceExtensionProperties(VkPhysicalDevice* physicalDevice);

@@ -10,8 +10,12 @@ public:
 	VulkanDevice(VkPhysicalDevice* device) : physicalDevice(device) {}
 	~VulkanDevice();
 
+public:
+	VkResult createDevice(std::vector<const char*> layers, std::vector<const char*> extensions);
+	void getPhysicalDeviceQueuesAndProperties();
 
-
+	bool getGraphicsQueueHandle();
+	void destroyDevice();
 private:
 	VkPhysicalDevice* physicalDevice;
 	VkDevice device = nullptr;

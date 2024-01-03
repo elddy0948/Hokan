@@ -19,13 +19,13 @@ VkResult VulkanInstance::createInstance(std::vector<const char*>& layers, std::v
 	appInfo.apiVersion = VK_API_VERSION_1_0;
 
 	createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-	createInfo.pNext = nullptr;
+	createInfo.pNext = VK_NULL_HANDLE;
 	createInfo.flags = 0;
 	createInfo.pApplicationInfo = &appInfo;
 	createInfo.enabledLayerCount = static_cast<uint32_t>(layers.size());
-	createInfo.ppEnabledLayerNames = layers.data();
+	createInfo.ppEnabledLayerNames = layers.size() ? layers.data() : nullptr;
 	createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
-	createInfo.ppEnabledExtensionNames = extensions.data();
+	createInfo.ppEnabledExtensionNames = extensions.size() ? extensions.data() : nullptr;
 
 	result = vkCreateInstance(&createInfo, nullptr, &instance);
 

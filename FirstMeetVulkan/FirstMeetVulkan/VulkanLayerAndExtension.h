@@ -28,9 +28,9 @@ public:
 	std::vector<const char*> getExtensionNames() { return appRequestedExtensionNames; }
 
 private:
-	std::vector<LayerProperties> layerPropertyList;
-	std::vector<const char*> appRequestedExtensionNames;
-	std::vector<const char*> appRequestedLayerNames;
+	std::vector<LayerProperties> layerPropertyList = {};
+	std::vector<const char*> appRequestedExtensionNames = {};
+	std::vector<const char*> appRequestedLayerNames = {};
 };
 
 #endif /* !VULKAN_LAYER_AND_EXTENSION_H */

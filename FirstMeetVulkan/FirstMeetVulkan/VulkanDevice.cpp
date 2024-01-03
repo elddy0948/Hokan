@@ -7,24 +7,24 @@ VkResult VulkanDevice::createDevice(std::vector<const char*> layers, std::vector
 	layerExtension.setExtensionNames(extensions);
 
 	VkResult result;
-	float queuePriority[1] = { 0.0 };
+	float queuePriorities[1] = { 0.0 };
 
 	VkDeviceQueueCreateInfo createInfo = {};
 	createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 	createInfo.pNext = nullptr;
 	createInfo.queueFamilyIndex = graphicsQueueFamilyIndex;
 	createInfo.queueCount = 1;
-	createInfo.pQueuePriorities = queuePriority;
+	createInfo.pQueuePriorities = queuePriorities;
 
 	VkDeviceCreateInfo deviceCreateInfo = {};
 	deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 	deviceCreateInfo.pNext = nullptr;
 	deviceCreateInfo.queueCreateInfoCount = 1;
 	deviceCreateInfo.pQueueCreateInfos = &createInfo;
-	deviceCreateInfo.enabledLayerCount = static_cast<uint32_t>(layers.size());
-	deviceCreateInfo.ppEnabledLayerNames = layers.data();
+	deviceCreateInfo.enabledLayerCount = 0;
+	deviceCreateInfo.ppEnabledLayerNames = nullptr;
 	deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
-	deviceCreateInfo.ppEnabledExtensionNames = extensions.data();
+	deviceCreateInfo.ppEnabledExtensionNames = extensions.size() ? extensions.data() : nullptr;
 	deviceCreateInfo.pEnabledFeatures = nullptr;
 
 	result = vkCreateDevice(*physicalDevice, &deviceCreateInfo, nullptr, &device);
@@ -47,6 +47,10 @@ bool VulkanDevice::getGraphicsQueueHandle() {
 		}
 	}
 	return found;
+}
+
+void VulkanDevice::getDeviceQueue() {
+	vkGetDeviceQueue(device, graphicsQueueFamilyIndex, 0, &queue);
 }
 
 void VulkanDevice::destroyDevice() {

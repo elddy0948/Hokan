@@ -15,12 +15,20 @@ public:
 	void getPhysicalDeviceQueuesAndProperties();
 
 	bool getGraphicsQueueHandle();
+	void getDeviceQueue();
 	void destroyDevice();
+
+	VulkanLayerAndExtension* getLayerExtension() { return &layerExtension; }
+	VkPhysicalDeviceProperties* getPhysicalDeviceProperties() { return &physicalDeviceProperties; }
+	VkPhysicalDeviceMemoryProperties* getMemoryProperties() { return &memoryProperties; }
+
 private:
 	VkPhysicalDevice* physicalDevice;
 	VkDevice device = nullptr;
+	
 	VkPhysicalDeviceProperties physicalDeviceProperties = {};
 	VkPhysicalDeviceMemoryProperties memoryProperties = {};
+	
 	VkQueue queue = nullptr;
 	std::vector<VkQueueFamilyProperties> queueFamilyProperties;
 

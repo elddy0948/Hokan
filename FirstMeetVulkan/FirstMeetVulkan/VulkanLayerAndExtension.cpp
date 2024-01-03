@@ -2,13 +2,9 @@
 #include "VulkanApplication.h"
 
 VulkanLayerAndExtension::VulkanLayerAndExtension() {
-	layerPropertyList = {};
-	appRequestedExtensionNames = {};
-	appRequestedLayerNames = {};
 }
 
 VulkanLayerAndExtension::~VulkanLayerAndExtension() {
-
 }
 
 VkResult VulkanLayerAndExtension::getInstanceLayerProperties() {

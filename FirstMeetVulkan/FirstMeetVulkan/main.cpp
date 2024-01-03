@@ -9,14 +9,18 @@ std::vector<const char*> layerNames = {
 	"VK_LAYER_LUNARG_api_dump",
 };
 
+std::vector<const char*> deviceExtensionNames = {
+	VK_KHR_SWAPCHAIN_EXTENSION_NAME
+};
+
 int main(void) {
 	VulkanApplication* app = VulkanApplication::GetApp();
-	std::vector<VkPhysicalDevice> gpus;
 
 	app->initialize();
+	app->prepare();
+	app->render();
+	app->deInitialize();
 
-	app->enumeratePhysicalDevices(gpus);
-	app->getInstance()->getLayerExtension()->getDeviceExtensionProperties(&gpus[0]);
 	while (true) {}
 	return 0;
 }

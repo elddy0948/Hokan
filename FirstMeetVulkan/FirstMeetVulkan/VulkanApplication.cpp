@@ -12,7 +12,6 @@ VulkanApplication::VulkanApplication() {
 }
 
 VulkanApplication::~VulkanApplication() {
-
 }
 
 VulkanApplication* VulkanApplication::GetApp() {

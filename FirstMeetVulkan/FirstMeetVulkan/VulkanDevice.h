@@ -21,6 +21,8 @@ public:
 	VulkanLayerAndExtension* getLayerExtension() { return &layerExtension; }
 	VkPhysicalDeviceProperties* getPhysicalDeviceProperties() { return &physicalDeviceProperties; }
 	VkPhysicalDeviceMemoryProperties* getMemoryProperties() { return &memoryProperties; }
+	VkDevice* getDevice() { return &device; }
+	uint32_t getGraphicsQueueFamilyIndex() { return graphicsQueueFamilyIndex; }
 
 private:
 	VkPhysicalDevice* physicalDevice;

@@ -72,7 +72,9 @@ VkResult VulkanApplication::handShakeWithDevice(VkPhysicalDevice* gpu, std::vect
 
 /* TODO : Lifecycle of application */
 void VulkanApplication::prepare() {}
+
 void VulkanApplication::update() {}
+
 void VulkanApplication::render() {}
 
 void VulkanApplication::deInitialize() {

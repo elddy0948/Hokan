@@ -17,7 +17,7 @@ public:
 	static VulkanApplication* GetApp();
 
 public:
-	VulkanInstance* getInstance() { return &instance; }
+	VulkanInstance* getVulkanInstance() { return &instance; }
 
 public:
 	void initialize();

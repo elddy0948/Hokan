@@ -16,10 +16,11 @@ VkResult VulkanInstance::createInstance(std::vector<const char*>& layers, std::v
 	appInfo.applicationVersion = 1;
 	appInfo.pEngineName = appName;
 	appInfo.engineVersion = 1;
-	appInfo.apiVersion = VK_API_VERSION_1_0;
+	appInfo.apiVersion = VK_MAKE_VERSION(1, 0, 0);
 
 	createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-	createInfo.pNext = VK_NULL_HANDLE;
+	//createInfo.pNext = layerExtension.getDbgReportCreateInfo();
+	createInfo.pNext = nullptr;
 	createInfo.flags = 0;
 	createInfo.pApplicationInfo = &appInfo;
 	createInfo.enabledLayerCount = static_cast<uint32_t>(layers.size());

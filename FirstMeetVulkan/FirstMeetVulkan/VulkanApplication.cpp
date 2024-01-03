@@ -12,6 +12,7 @@ VulkanApplication::VulkanApplication() {
 }
 
 VulkanApplication::~VulkanApplication() {
+
 }
 
 VulkanApplication* VulkanApplication::GetApp() {
@@ -20,7 +21,15 @@ VulkanApplication* VulkanApplication::GetApp() {
 }
 
 void VulkanApplication::initialize() {
+#ifndef NDEBUG
+	instance.getLayerExtension()->areLayersSupported(layerNames);
+#endif // !NDEBUG
+
 	instance.createInstance(layerNames, instanceExtensionNames, AppName);
+
+#ifndef NDEBUG
+	instance.getLayerExtension()->createDebugReportCallback();
+#endif // !NDEBUG
 
 	std::vector<VkPhysicalDevice> gpuList;
 	enumeratePhysicalDevices(gpuList);
@@ -35,13 +44,14 @@ VkResult VulkanApplication::enumeratePhysicalDevices(std::vector<VkPhysicalDevic
 	uint32_t deviceCount;
 	VkResult result;
 
-	result = vkEnumeratePhysicalDevices(*instance.getInstance(), &deviceCount, nullptr);
+	result = vkEnumeratePhysicalDevices(*instance.getVkInstance(), &deviceCount, nullptr);
 
 	if (result) { return result; }
 	if (deviceCount == 0) { return VK_INCOMPLETE; }
 
 	devices.resize(deviceCount);
-	result = vkEnumeratePhysicalDevices(*instance.getInstance(), &deviceCount, devices.data());
+	result = vkEnumeratePhysicalDevices(*instance.getVkInstance(), &deviceCount, devices.data());
+
 	return  result;
 }
 
@@ -64,4 +74,11 @@ VkResult VulkanApplication::handShakeWithDevice(VkPhysicalDevice* gpu, std::vect
 void VulkanApplication::prepare() {}
 void VulkanApplication::update() {}
 void VulkanApplication::render() {}
-void VulkanApplication::deInitialize() {}
+
+void VulkanApplication::deInitialize() {
+	device->destroyDevice();
+#ifndef NDEBUG
+	instance.getLayerExtension()->destroyDebugReportCallback();
+#endif // !NDEBUG
+	instance.destroyInstance();
+}

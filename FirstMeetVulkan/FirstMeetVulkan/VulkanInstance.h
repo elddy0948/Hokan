@@ -16,7 +16,7 @@ public:
 	VkResult createInstance(std::vector<const char*>& layers, std::vector<const char*>& extensions, const char* appName);
 	void destroyInstance();
 
-	VkInstance* getInstance() { return &instance; }
+	VkInstance* getVkInstance() { return &instance; }
 	VulkanLayerAndExtension* getLayerExtension() { return &layerExtension; }
 
 private:

@@ -18,7 +18,7 @@ public:
 
 public:
 	VulkanInstance* getVulkanInstance() { return &instance; }
-	VulkanDevice* getDevice() { return device; }
+	VulkanDevice* getVulkanDevice() { return device; }
 
 public:
 	void initialize();

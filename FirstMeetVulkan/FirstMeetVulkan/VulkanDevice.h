@@ -21,8 +21,13 @@ public:
 	VulkanLayerAndExtension* getLayerExtension() { return &layerExtension; }
 	VkPhysicalDeviceProperties* getPhysicalDeviceProperties() { return &physicalDeviceProperties; }
 	VkPhysicalDeviceMemoryProperties* getMemoryProperties() { return &memoryProperties; }
-	VkDevice* getDevice() { return &device; }
+	VkDevice* getVkDevice() { return &device; }
 	uint32_t getGraphicsQueueFamilyIndex() { return graphicsQueueFamilyIndex; }
+	uint32_t getQueueFamilyCount() { return queueFamilyCount; }
+	VkPhysicalDevice* getPhysicalDevice() { return physicalDevice; }
+	std::vector<VkQueueFamilyProperties>* getQueueFamilyProperties() { return &queueFamilyProperties; }
+
+	void setGraphcisQueueFamilyIndex(uint32_t index) { graphicsQueueFamilyIndex = index; }
 
 private:
 	VkPhysicalDevice* physicalDevice;

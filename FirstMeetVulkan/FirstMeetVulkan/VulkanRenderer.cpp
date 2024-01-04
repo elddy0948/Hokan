@@ -98,7 +98,7 @@ void VulkanRenderer::destroyPresentationWindow() {
 }
 
 void VulkanRenderer::createCommandPool() {
-	VulkanDevice* deviceObject = application->getDevice();
+	VulkanDevice* deviceObject = application->getVulkanDevice();
 	VkResult result;
 	VkCommandPoolCreateInfo commandPoolCreateInfo = {};
 
@@ -107,7 +107,7 @@ void VulkanRenderer::createCommandPool() {
 	commandPoolCreateInfo.queueFamilyIndex = deviceObject->getGraphicsQueueFamilyIndex();
 	commandPoolCreateInfo.flags = 0;
 
-	result = vkCreateCommandPool(*deviceObject->getDevice(), &commandPoolCreateInfo, nullptr, &commandPool);
+	result = vkCreateCommandPool(*deviceObject->getVkDevice(), &commandPoolCreateInfo, nullptr, &commandPool);
 	if (result != VK_SUCCESS) { std::cout << "[ ! ] : Failed to create command pool!\n"; }
 }
 
@@ -116,5 +116,3 @@ void VulkanRenderer::buildSwapChainAndDepthImage() {
 	swapChainObject->createSwapChain(commandDepthImage);
 	createDepthImage();
 }
-
-

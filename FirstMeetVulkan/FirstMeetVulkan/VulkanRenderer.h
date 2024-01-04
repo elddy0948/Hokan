@@ -5,6 +5,7 @@
 #include "Headers.h"
 #include "VulkanApplication.h"
 #include "VulkanDevice.h"
+#include "VulkanSwapChain.h"
 
 class VulkanRenderer {
 public:
@@ -24,9 +25,8 @@ public:
 
 
 	inline VulkanApplication* getApplication() { return application; }
-	inline VulkanDevice* getDevice() { return device; }
-	//inline VulkanSwapChain* getSwapChain() { return swapChain; }
-
+	inline VulkanDevice* getDevice() { return deviceObject; }
+	inline VulkanSwapChain* getSwapChain() { return swapChainObject; }
 
 	void createCommandPool();
 	void buildSwapChainAndDepthImage();
@@ -59,7 +59,7 @@ public:
 private:
 	VulkanApplication* application;
 	VulkanDevice* deviceObject;
-	// VulkanSwapChain* swapChain;
+	VulkanSwapChain* swapChainObject;
 };
 
 

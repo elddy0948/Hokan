@@ -225,3 +225,43 @@ void VulkanSwapChain::managePresentMode() {
 		swapchainPrivateVariables.preTransform = swapchainPrivateVariables.surfaceCapabilities.currentTransform;
 	}
 }
+
+void VulkanSwapChain::createSwapChainColorImages() {
+	VkResult result;
+	VkSwapchainCreateInfoKHR swapchainInfo = {};
+
+	swapchainInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+	swapchainInfo.pNext = nullptr;
+	swapchainInfo.surface = swapChainPublicVariables.surface;
+	swapchainInfo.minImageCount = swapchainPrivateVariables.desiredNumberOfSwapChainImages;
+	swapchainInfo.imageFormat = swapChainPublicVariables.format;
+	swapchainInfo.imageExtent.width = swapchainPrivateVariables.swapChainExtent.width;
+	swapchainInfo.imageExtent.height = swapchainPrivateVariables.swapChainExtent.height;
+	swapchainInfo.preTransform = swapchainPrivateVariables.preTransform;
+	swapchainInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+	swapchainInfo.imageArrayLayers = 1;
+	swapchainInfo.presentMode = swapchainPrivateVariables.swapChainPresentMode;
+	swapchainInfo.oldSwapchain = VK_NULL_HANDLE;
+	swapchainInfo.clipped = true;
+	swapchainInfo.imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+	swapchainInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	swapchainInfo.queueFamilyIndexCount = 0;
+	swapchainInfo.pQueueFamilyIndices = nullptr;
+	
+	result = fpCreateSwapchainKHR(*rendererObject->getDevice()->getVkDevice(), &swapchainInfo, nullptr, &swapChainPublicVariables.swapChain);
+	assert(result == VK_SUCCESS);
+
+	result = fpGetSwapchainImagesKHR(*rendererObject->getDevice()->getVkDevice(), swapChainPublicVariables.swapChain, &swapChainPublicVariables.swapChainImageCount, nullptr);
+	assert(result == VK_SUCCESS);
+
+	swapchainPrivateVariables.swapChainImages.clear();
+	swapchainPrivateVariables.swapChainImages.resize(swapChainPublicVariables.swapChainImageCount);
+	assert(swapchainPrivateVariables.swapChainImages.size() >= 1);
+
+	result = fpGetSwapchainImagesKHR(*rendererObject->getDevice()->getVkDevice(), swapChainPublicVariables.swapChain, &swapChainPublicVariables.swapChainImageCount, &swapchainPrivateVariables.swapChainImages[0]);
+	assert(result == VK_SUCCESS);
+}
+
+void VulkanSwapChain::createColorImageView(const VkCommandBuffer& commandBuffer) {
+	// TODO: create color image view
+}

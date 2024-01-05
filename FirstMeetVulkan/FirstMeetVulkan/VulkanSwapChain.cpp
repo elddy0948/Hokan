@@ -198,3 +198,30 @@ void VulkanSwapChain::getSurfaceCapabilitiesAndPresentMode() {
 		swapchainPrivateVariables.swapChainExtent = swapchainPrivateVariables.surfaceCapabilities.currentExtent;
 	}
 }
+
+void VulkanSwapChain::managePresentMode() {
+	swapchainPrivateVariables.swapChainPresentMode = VK_PRESENT_MODE_FIFO_KHR;
+
+	for (size_t i = 0; i < swapchainPrivateVariables.presentModeCount; ++i) {
+		if (swapchainPrivateVariables.presentModes[i] == VK_PRESENT_MODE_MAILBOX_KHR) {
+			swapchainPrivateVariables.swapChainPresentMode = VK_PRESENT_MODE_MAILBOX_KHR;
+			break;
+		}
+		if (swapchainPrivateVariables.swapChainPresentMode != VK_PRESENT_MODE_MAILBOX_KHR && swapchainPrivateVariables.presentModes[i] == VK_PRESENT_MODE_IMMEDIATE_KHR) {
+			swapchainPrivateVariables.swapChainPresentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
+		}
+	}
+
+	swapchainPrivateVariables.desiredNumberOfSwapChainImages = swapchainPrivateVariables.surfaceCapabilities.minImageCount + 1;
+
+	if ((swapchainPrivateVariables.surfaceCapabilities.maxImageCount > 0) && (swapchainPrivateVariables.desiredNumberOfSwapChainImages > swapchainPrivateVariables.surfaceCapabilities.maxImageCount)) {
+		swapchainPrivateVariables.desiredNumberOfSwapChainImages = swapchainPrivateVariables.surfaceCapabilities.maxImageCount;
+	}
+
+	if (swapchainPrivateVariables.surfaceCapabilities.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR) {
+		swapchainPrivateVariables.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+	}
+	else {
+		swapchainPrivateVariables.preTransform = swapchainPrivateVariables.surfaceCapabilities.currentTransform;
+	}
+}

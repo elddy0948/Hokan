@@ -263,5 +263,31 @@ void VulkanSwapChain::createSwapChainColorImages() {
 }
 
 void VulkanSwapChain::createColorImageView(const VkCommandBuffer& commandBuffer) {
-	// TODO: create color image view
+	VkResult result;
+	swapChainPublicVariables.colorBuffer.clear();
+
+	for (uint32_t i = 0; i < swapChainPublicVariables.swapChainImageCount; ++i) {
+		SwapChainBuffer swapchainBuffer;
+		VkImageViewCreateInfo imageViewInfo = {};
+
+		imageViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		imageViewInfo.pNext = nullptr;
+		imageViewInfo.format = swapChainPublicVariables.format;
+		imageViewInfo.components = { VK_COMPONENT_SWIZZLE_IDENTITY };
+		imageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		imageViewInfo.subresourceRange.baseMipLevel = 0;
+		imageViewInfo.subresourceRange.levelCount = 1;
+		imageViewInfo.subresourceRange.baseArrayLayer = 0;
+		imageViewInfo.subresourceRange.layerCount = 1;
+		imageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		imageViewInfo.flags = 0;
+
+		swapchainBuffer.image = swapchainPrivateVariables.swapChainImages[i];
+		imageViewInfo.image = swapchainBuffer.image;
+
+		result = vkCreateImageView(*rendererObject->getDevice()->getVkDevice(), &imageViewInfo, nullptr, &swapchainBuffer.view);
+		swapChainPublicVariables.colorBuffer.push_back(swapchainBuffer);
+		assert(result == VK_SUCCESS);
+	}
+	swapChainPublicVariables.currentColorBuffer = 0;
 }

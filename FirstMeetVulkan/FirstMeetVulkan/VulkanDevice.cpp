@@ -1,4 +1,6 @@
 #include "VulkanDevice.h"
+#include "VulkanInstance.h"
+#include "VulkanApplication.h"
 
 VulkanDevice::~VulkanDevice() {}
 
@@ -55,4 +57,18 @@ void VulkanDevice::getDeviceQueue() {
 
 void VulkanDevice::destroyDevice() {
 	vkDestroyDevice(device, nullptr);
+}
+
+bool VulkanDevice::memoryTypeFromProperties(uint32_t typeBits, VkFlags requirementsMask, uint32_t* typeIndex)
+{
+	for (uint32_t i = 0; i < 32; ++i) {
+		if ((typeBits & 1) == 1) {
+			if ((memoryProperties.memoryTypes[i].propertyFlags & requirementsMask)) {
+				*typeIndex = i;
+				return true;
+			}
+		}
+		typeBits >>= 1;
+	}
+	return false;
 }

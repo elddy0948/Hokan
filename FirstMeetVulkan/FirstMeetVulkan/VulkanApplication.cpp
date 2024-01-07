@@ -5,13 +5,19 @@ std::once_flag VulkanApplication::onlyOnce;
 
 extern std::vector<const char*> instanceExtensionNames;
 extern std::vector<const char*> layerNames;
-extern std::vector<const char*> deviceExtensionNames;	// TODO: set up device extension names
+extern std::vector<const char*> deviceExtensionNames;
 
 VulkanApplication::VulkanApplication() {
 	instance.getLayerExtension()->getInstanceLayerProperties();
+
+	device = nullptr;
+	debugFlag = false;
+	rendererObject = nullptr;
 }
 
 VulkanApplication::~VulkanApplication() {
+	delete rendererObject;
+	rendererObject = nullptr;
 }
 
 VulkanApplication* VulkanApplication::GetApp() {
@@ -36,6 +42,9 @@ void VulkanApplication::initialize() {
 	if (gpuList.size() > 0) {
 		handShakeWithDevice(&gpuList[0], layerNames, deviceExtensionNames);
 	}
+
+	rendererObject = new VulkanRenderer(this, device);
+	rendererObject->initialize();
 }
 
 VkResult VulkanApplication::enumeratePhysicalDevices(std::vector<VkPhysicalDevice>& devices)
@@ -74,9 +83,17 @@ void VulkanApplication::prepare() {}
 
 void VulkanApplication::update() {}
 
-void VulkanApplication::render() {}
+bool VulkanApplication::render() {
+	return rendererObject->render();
+}
 
 void VulkanApplication::deInitialize() {
+	rendererObject->destroyDepthBuffer();
+	rendererObject->getSwapChain()->destroySwapChain();
+	rendererObject->destroyCommandBuffer();
+	rendererObject->destroyCommandPool();
+	rendererObject->destroyPresentationWindow();
+
 	device->destroyDevice();
 #ifndef NDEBUG
 	instance.getLayerExtension()->destroyDebugReportCallback();

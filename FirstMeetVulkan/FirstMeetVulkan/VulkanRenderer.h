@@ -3,9 +3,9 @@
 #define VULKAN_RENDERER_H
 
 #include "Headers.h"
-#include "VulkanApplication.h"
-#include "VulkanDevice.h"
 #include "VulkanSwapChain.h"
+
+#define NUM_SAMPLES VK_SAMPLE_COUNT_1_BIT
 
 class VulkanRenderer {
 public:
@@ -22,7 +22,6 @@ public:
 	static LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	
 	void destroyPresentationWindow();
-
 
 	inline VulkanApplication* getApplication() { return application; }
 	inline VulkanDevice* getDevice() { return deviceObject; }
@@ -43,12 +42,12 @@ public:
 	HWND window;
 #endif // _WIN32
 
-	struct Depth {
+	struct {
 		VkFormat format;
 		VkImage image;
 		VkDeviceMemory deviceMemory;
 		VkImageView imageView;
-	};
+	} Depth;
 
 	VkCommandBuffer commandDepthImage;
 	VkCommandPool commandPool;
@@ -58,9 +57,8 @@ public:
 
 private:
 	VulkanApplication* application;
-	VulkanDevice* deviceObject;
-	VulkanSwapChain* swapChainObject;
+	VulkanDevice* deviceObject = nullptr;
+	VulkanSwapChain* swapChainObject = nullptr;
 };
-
 
 #endif /* !VULKAN_RENDERER_H */

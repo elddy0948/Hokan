@@ -3,6 +3,7 @@
 
 std::vector<const char*> instanceExtensionNames = {
 	VK_KHR_SURFACE_EXTENSION_NAME,
+	VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
 	VK_EXT_DEBUG_REPORT_EXTENSION_NAME,
 };
 
@@ -25,7 +26,12 @@ int main(void) {
 
 	app->initialize();
 	app->prepare();
-	app->render();
+	bool isWindowOpen = true;
+
+	while (isWindowOpen) {
+		isWindowOpen = app->render();
+	}
+
 	app->deInitialize();
 
 	return 0;

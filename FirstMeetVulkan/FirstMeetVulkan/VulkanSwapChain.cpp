@@ -1,4 +1,5 @@
 #include "VulkanSwapChain.h"
+
 #include "VulkanDevice.h"
 #include "VulkanInstance.h"
 #include "VulkanRenderer.h"
@@ -281,7 +282,7 @@ void VulkanSwapChain::createColorImageView(const VkCommandBuffer& commandBuffer)
 		imageViewInfo.subresourceRange.layerCount = 1;
 		imageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
 		imageViewInfo.flags = 0;
-
+		 
 		swapchainBuffer.image = swapchainPrivateVariables.swapChainImages[i];
 		imageViewInfo.image = swapchainBuffer.image;
 

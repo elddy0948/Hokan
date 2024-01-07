@@ -2,7 +2,6 @@
 #ifndef VULKAN_INSTANCE_H
 #define VULKAN_INSTANCE_H
 
-#include "Headers.h"
 #include "VulkanLayerAndExtension.h"
 
 class VulkanInstance {

@@ -4,6 +4,8 @@
 
 #include "Headers.h"
 
+class VulkanInstance;
+class VulkanDevice;
 class VulkanRenderer;
 class VulkanApplication;
 

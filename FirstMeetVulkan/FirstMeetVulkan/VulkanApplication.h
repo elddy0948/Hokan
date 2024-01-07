@@ -4,6 +4,7 @@
 
 #include "VulkanInstance.h"
 #include "VulkanDevice.h"
+#include "VulkanRenderer.h"
 
 class VulkanApplication {
 private:
@@ -24,7 +25,7 @@ public:
 	void initialize();
 	void prepare();
 	void update();
-	void render();
+	bool render();
 	void deInitialize();
 
 private:
@@ -37,7 +38,11 @@ private:
 
 	VulkanInstance instance;
 	VulkanDevice* device = nullptr;
+	VulkanRenderer* rendererObject = nullptr;
+
 	const char* AppName = "Hokan";
+
+	bool debugFlag;
 };
 
 #endif /* !VULKAN_APPLICATION_H */

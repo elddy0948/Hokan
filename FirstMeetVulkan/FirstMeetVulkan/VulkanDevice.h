@@ -18,6 +18,8 @@ public:
 	void getDeviceQueue();
 	void destroyDevice();
 
+	bool memoryTypeFromProperties(uint32_t typeBits, VkFlags requirementsMask, uint32_t* typeIndex);
+
 	VulkanLayerAndExtension* getLayerExtension() { return &layerExtension; }
 	VkPhysicalDeviceProperties* getPhysicalDeviceProperties() { return &physicalDeviceProperties; }
 	VkPhysicalDeviceMemoryProperties* getMemoryProperties() { return &memoryProperties; }
@@ -25,6 +27,7 @@ public:
 	uint32_t getGraphicsQueueFamilyIndex() { return graphicsQueueFamilyIndex; }
 	uint32_t getQueueFamilyCount() { return queueFamilyCount; }
 	VkPhysicalDevice* getPhysicalDevice() { return physicalDevice; }
+	VkQueue* getQueue() { return &queue; }
 	std::vector<VkQueueFamilyProperties>* getQueueFamilyProperties() { return &queueFamilyProperties; }
 
 	void setGraphcisQueueFamilyIndex(uint32_t index) { graphicsQueueFamilyIndex = index; }

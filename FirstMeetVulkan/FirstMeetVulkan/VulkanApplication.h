@@ -22,6 +22,7 @@ public:
 	VulkanDevice* getVulkanDevice() { return device; }
 
 public:
+	/* Life Cycle */
 	void initialize();
 	void prepare();
 	void update();
@@ -36,13 +37,13 @@ private:
 	static std::unique_ptr<VulkanApplication> app;
 	static std::once_flag onlyOnce;
 
+private:
 	VulkanInstance instance;
 	VulkanDevice* device = nullptr;
 	VulkanRenderer* rendererObject = nullptr;
 
 	const char* AppName = "Hokan";
-
-	bool debugFlag;
+	bool debugFlag = false;
 };
 
 #endif /* !VULKAN_APPLICATION_H */

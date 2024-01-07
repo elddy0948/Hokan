@@ -9,10 +9,6 @@ extern std::vector<const char*> deviceExtensionNames;
 
 VulkanApplication::VulkanApplication() {
 	instance.getLayerExtension()->getInstanceLayerProperties();
-
-	device = nullptr;
-	debugFlag = false;
-	rendererObject = nullptr;
 }
 
 VulkanApplication::~VulkanApplication() {
@@ -26,6 +22,8 @@ VulkanApplication* VulkanApplication::GetApp() {
 }
 
 void VulkanApplication::initialize() {
+	std::vector<VkPhysicalDevice> gpuList;
+
 #ifndef NDEBUG
 	instance.getLayerExtension()->areLayersSupported(layerNames);
 #endif // !NDEBUG
@@ -36,7 +34,6 @@ void VulkanApplication::initialize() {
 	instance.getLayerExtension()->createDebugReportCallback();
 #endif // !NDEBUG
 
-	std::vector<VkPhysicalDevice> gpuList;
 	enumeratePhysicalDevices(gpuList);
 
 	if (gpuList.size() > 0) {

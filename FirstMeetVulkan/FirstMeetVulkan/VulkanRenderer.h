@@ -49,14 +49,14 @@ public:
 		VkImageView imageView;
 	} Depth;
 
-	VkCommandBuffer commandDepthImage;
-	VkCommandPool commandPool;
+	VkCommandBuffer commandDepthImage = nullptr;
+	VkCommandPool commandPool = nullptr;
 
-	int width;
-	int height;
+	int width = 500;
+	int height = 500;
 
 private:
-	VulkanApplication* application;
+	VulkanApplication* application = nullptr;
 	VulkanDevice* deviceObject = nullptr;
 	VulkanSwapChain* swapChainObject = nullptr;
 };

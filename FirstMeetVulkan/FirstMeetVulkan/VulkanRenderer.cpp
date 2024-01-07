@@ -219,7 +219,7 @@ void VulkanRenderer::createDepthImage() {
 	memoryInfo.allocationSize = memoryRequirements.size;
 
 	pass = deviceObject->memoryTypeFromProperties(memoryRequirements.memoryTypeBits, 0, &memoryInfo.memoryTypeIndex);
-	//assert(pass);
+	assert(pass);
 
 	result = vkAllocateMemory(*deviceObject->getVkDevice(), &memoryInfo, nullptr, &Depth.deviceMemory);
 	assert(result == VK_SUCCESS);

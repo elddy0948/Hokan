@@ -59,9 +59,9 @@ void CommandBufferManager::submitCommandBuffer(const VkQueue& queue, const VkCom
 	VkResult result;
 	if (submitInfo) {
 		result = vkQueueSubmit(queue, 1, submitInfo, fence);
-		if (!result) { std::cout << " [ ! ] : Failed to submit queue.\n"; }
+		if (result != VK_SUCCESS) { std::cout << " [ ! ] : Failed to submit queue.\n"; }
 		result = vkQueueWaitIdle(queue);
-		if (!result) { std::cout << "[ ! ] : Something went wrong in waiting queue.\n"; }
+		if (result != VK_SUCCESS) { std::cout << "[ ! ] : Something went wrong in waiting queue.\n"; }
 		return;
 	}
 
@@ -77,7 +77,7 @@ void CommandBufferManager::submitCommandBuffer(const VkQueue& queue, const VkCom
 	defaultSubmitInfo.pSignalSemaphores = nullptr;
 
 	result = vkQueueSubmit(queue, 1, &defaultSubmitInfo, fence);
-	if (!result) { std::cout << " [ ! ] : Failed to submit queue.\n"; }
+	if (result != VK_SUCCESS) { std::cout << " [ ! ] : Failed to submit queue.\n"; }
 	result = vkQueueWaitIdle(queue);
-	if (!result) { std::cout << "[ ! ] : Something went wrong in waiting queue.\n"; }
+	if (result != VK_SUCCESS) { std::cout << "[ ! ] : Something went wrong in waiting queue.\n"; }
 }

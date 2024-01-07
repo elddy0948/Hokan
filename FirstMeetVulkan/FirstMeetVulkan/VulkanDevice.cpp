@@ -63,7 +63,7 @@ bool VulkanDevice::memoryTypeFromProperties(uint32_t typeBits, VkFlags requireme
 {
 	for (uint32_t i = 0; i < 32; ++i) {
 		if ((typeBits & 1) == 1) {
-			if ((memoryProperties.memoryTypes[i].propertyFlags & requirementsMask)) {
+			if ((memoryProperties.memoryTypes[i].propertyFlags & requirementsMask) == requirementsMask) {
 				*typeIndex = i;
 				return true;
 			}

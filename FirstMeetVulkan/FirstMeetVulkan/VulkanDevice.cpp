@@ -2,14 +2,36 @@
 #include "VulkanInstance.h"
 #include "VulkanApplication.h"
 
-VkResult VulkanDevice::createDevice(std::vector<const char*> layers, std::vector<const char*> extensions) {
+VulkanDevice::VulkanDevice(VkPhysicalDevice* physicalDevice) : physicalDevice(physicalDevice) {
+	layerExtension.fetchDeviceExtensionProperties(this->physicalDevice);
+	vkGetPhysicalDeviceProperties(*this->physicalDevice, &deviceProperties);
+	vkGetPhysicalDeviceMemoryProperties(*this->physicalDevice, &memoryProperties);
+
+	fetchQueuesAndProperties();
+	fetchGraphicsQueueHandle();
+}
+
+void VulkanDevice::fetchQueuesAndProperties() {
+	vkGetPhysicalDeviceQueueFamilyProperties(*physicalDevice, &queueFamilyCount, nullptr);
+	queueFamilyProperties.resize(queueFamilyCount);
+	vkGetPhysicalDeviceQueueFamilyProperties(*physicalDevice, &queueFamilyCount, queueFamilyProperties.data());
+}
+
+void VulkanDevice::fetchGraphicsQueueHandle() {
+	for (uint32_t i = 0; i < queueFamilyCount; ++i) {
+		if (queueFamilyProperties[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+			graphicsQueueFamilyIndex = i;
+			break;
+		}
+	}
+}
+
+VkResult VulkanDevice::createLogicalDevice(std::vector<const char*> layers, std::vector<const char*> extensions) {
 	VkResult result;
 	float queuePriorities[1] = { 0.0 };
 	VkDeviceQueueCreateInfo createInfo = {};
 	VkDeviceCreateInfo deviceCreateInfo = {};
-
-	layerExtension.setLayerNames(layers);
-	layerExtension.setExtensionNames(extensions);
+	std::vector<const char*> enableExtensions = layerExtension.fetchDeviceEnableExtensions(extensions);
 
 	createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 	createInfo.pNext = nullptr;
@@ -23,35 +45,16 @@ VkResult VulkanDevice::createDevice(std::vector<const char*> layers, std::vector
 	deviceCreateInfo.pQueueCreateInfos = &createInfo;
 	deviceCreateInfo.enabledLayerCount = 0;
 	deviceCreateInfo.ppEnabledLayerNames = nullptr;
-	deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
-	deviceCreateInfo.ppEnabledExtensionNames = extensions.size() ? extensions.data() : nullptr;
+	deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(enableExtensions.size());
+	deviceCreateInfo.ppEnabledExtensionNames = enableExtensions.size() ? enableExtensions.data() : nullptr;
 	deviceCreateInfo.pEnabledFeatures = nullptr;
 
 	result = vkCreateDevice(*physicalDevice, &deviceCreateInfo, nullptr, &device);
-
+	 
 	return result;
 }
 
-void VulkanDevice::getPhysicalDeviceQueuesAndProperties() {
-	vkGetPhysicalDeviceQueueFamilyProperties(*physicalDevice, &queueFamilyCount, nullptr);
-	queueFamilyProperties.resize(queueFamilyCount);
-	vkGetPhysicalDeviceQueueFamilyProperties(*physicalDevice, &queueFamilyCount, queueFamilyProperties.data());
-}
-
-bool VulkanDevice::getGraphicsQueueHandle() {
-	bool found = false;
-	for (unsigned int i = 0; i < queueFamilyCount; ++i) {
-		if (queueFamilyProperties[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-			found = true;
-			graphicsQueueFamilyIndex = i;
-			break;
-		}
-	}
-	return found;
-}
-
-bool VulkanDevice::memoryTypeFromProperties(uint32_t typeBits, VkFlags requirementsMask, uint32_t* typeIndex)
-{
+bool VulkanDevice::memoryTypeFromProperties(uint32_t typeBits, VkFlags requirementsMask, uint32_t* typeIndex) {
 	for (uint32_t i = 0; i < 32; ++i) {
 		if ((typeBits & 1) == 1) {
 			if ((memoryProperties.memoryTypes[i].propertyFlags & requirementsMask) == requirementsMask) {

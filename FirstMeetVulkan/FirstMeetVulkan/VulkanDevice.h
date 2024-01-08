@@ -7,26 +7,24 @@
 
 class VulkanDevice {
 public:
-	VulkanDevice(VkPhysicalDevice* device) : physicalDevice(device) {}
+	VulkanDevice(VkPhysicalDevice* physicalDevice);
 	~VulkanDevice() {}
 
 public:
-	VkResult createDevice(std::vector<const char*> layers, std::vector<const char*> extensions);
-	void getPhysicalDeviceQueuesAndProperties();
+	VkResult createLogicalDevice(std::vector<const char*> layers, std::vector<const char*> extensions);
 
-	bool getGraphicsQueueHandle();
+	void fetchQueuesAndProperties();
+	void fetchGraphicsQueueHandle();
+
 	void getDeviceQueue() { vkGetDeviceQueue(device, graphicsQueueFamilyIndex, 0, &queue); }
 	void destroyDevice() { vkDestroyDevice(device, nullptr); }
 
 	bool memoryTypeFromProperties(uint32_t typeBits, VkFlags requirementsMask, uint32_t* typeIndex);
 
-	VulkanLayerAndExtension* getLayerExtension() { return &layerExtension; }
-	VkPhysicalDeviceProperties* getPhysicalDeviceProperties() { return &physicalDeviceProperties; }
-	VkPhysicalDeviceMemoryProperties* getMemoryProperties() { return &memoryProperties; }
 	VkDevice* getVkDevice() { return &device; }
-	
 	VkPhysicalDevice* getPhysicalDevice() { return physicalDevice; }
 	VkQueue* getQueue() { return &queue; }
+
 	std::vector<VkQueueFamilyProperties>* getQueueFamilyProperties() { return &queueFamilyProperties; }
 
 	uint32_t getGraphicsQueueFamilyIndex() { return graphicsQueueFamilyIndex; }
@@ -38,7 +36,7 @@ private:
 	VkPhysicalDevice* physicalDevice = nullptr;
 	VkDevice device = nullptr;
 	
-	VkPhysicalDeviceProperties physicalDeviceProperties = {};
+	VkPhysicalDeviceProperties deviceProperties = {};
 	VkPhysicalDeviceMemoryProperties memoryProperties = {};
 	
 	VkQueue queue = nullptr;

@@ -1,122 +1,121 @@
 #include "VulkanLayerAndExtension.h"
 #include "VulkanApplication.h"
 
-VulkanLayerAndExtension::VulkanLayerAndExtension() {
-}
-
 VulkanLayerAndExtension::~VulkanLayerAndExtension() {
 	dbgCreateDebugReportCallback = nullptr;
 	dbgDestroyDebugReportCallback = nullptr;
 	debugReportCallback = nullptr;
 }
 
-VkResult VulkanLayerAndExtension::getInstanceLayerProperties() {
-	uint32_t instanceLayerCount;
-	std::vector<VkLayerProperties> layerProperties;
+VkResult VulkanLayerAndExtension::fetchInstanceLayerProperties() {
+	uint32_t layerCount;
 	VkResult result;
 
-	do {
-		result = vkEnumerateInstanceLayerProperties(&instanceLayerCount, nullptr);
+	result = vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+	if (result) 
+		return result;
 
-		if (result)
-			return result;
-		if (instanceLayerCount == 0)
-			return VK_INCOMPLETE;
+	if (layerCount == 0) 
+		return VK_INCOMPLETE;
 
-		layerProperties.resize(instanceLayerCount);
-		result = vkEnumerateInstanceLayerProperties(&instanceLayerCount, layerProperties.data());
-	} while (result == VK_INCOMPLETE);
-
-	std::cout << "\nInstanced Layers\n";
-	std::cout << "============================================================\n";
-
-	for (const auto& globalLayerProperty : layerProperties) {
-		std::cout << '\n' << globalLayerProperty.description << "\n\t|\n\t|---[Layer Name]-> " << globalLayerProperty.layerName << '\n';
-
-		LayerProperties lp;
-		lp.properties = globalLayerProperty;
-
-		result = getExtensionProperties(lp);
-
-		if (result)
-			continue;
-
-		layerPropertyList.push_back(lp);
-
-		for (const auto& extension : lp.extensions) {
-			std::cout << "\t\t|\n\t\t-[Layer Extension]-> " << extension.extensionName << '\n';
-		}
-	}
+	layerProperties.resize(layerCount);
+	result = vkEnumerateInstanceLayerProperties(&layerCount, layerProperties.data());
 
 	return result;
 }
 
-VkResult VulkanLayerAndExtension::getExtensionProperties(LayerProperties& layerProperties, VkPhysicalDevice* physicalDevice) {
+VkResult VulkanLayerAndExtension::fetchInstanceExtensionProperties() {
 	uint32_t extensionCount;
-	std::vector<VkExtensionProperties> extensions;
 	VkResult result;
 
-	do {
-		if (physicalDevice)
-			result = vkEnumerateDeviceExtensionProperties(*physicalDevice, layerProperties.properties.layerName, &extensionCount, nullptr);
-		else
-			result = vkEnumerateInstanceExtensionProperties(layerProperties.properties.layerName, &extensionCount, nullptr);
+	result = vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
 
+	if (result)
+		return result;
+	if (extensionCount == 0)
+		return VK_INCOMPLETE;
 
-		if (result) { return result; }
-		if (extensionCount == 0) { return VK_INCOMPLETE; }
-
-		extensions.resize(extensionCount);
-
-		if (physicalDevice)
-			result = vkEnumerateDeviceExtensionProperties(*physicalDevice, layerProperties.properties.layerName, &extensionCount, extensions.data());
-		else
-			result = vkEnumerateInstanceExtensionProperties(layerProperties.properties.layerName, &extensionCount, extensions.data());
-	} while (result == VK_INCOMPLETE);
-
-	layerProperties.extensions = extensions;
+	extensionProperties.resize(extensionCount);
+	result = vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensionProperties.data());
 
 	return result;
 }
 
-VkResult VulkanLayerAndExtension::getDeviceExtensionProperties(VkPhysicalDevice* physicalDevice) {
-	VkResult result = VK_INCOMPLETE;
+VkResult VulkanLayerAndExtension::fetchDeviceExtensionProperties(VkPhysicalDevice* physicalDevice) {
+	uint32_t extensionCount;
+	VkResult result;
 
-	std::cout << "\nDevice extensions\n";
-	std::cout << "============================================================\n";
+	result = vkEnumerateDeviceExtensionProperties(*physicalDevice, nullptr, &extensionCount, nullptr);
 
-	VulkanApplication* app = VulkanApplication::GetApp();
-	std::vector<LayerProperties>* instanceLayerProperties = &app->getVulkanInstance()->getLayerExtension()->layerPropertyList;
+	if (result)
+		return result;
+	if (extensionCount == 0)
+		return VK_INCOMPLETE;
 
-	for (auto globalLayerProperty : *instanceLayerProperties) {
-		LayerProperties layerProperties;
-		layerProperties.properties = globalLayerProperty.properties;
-		if (result = getExtensionProperties(layerProperties, physicalDevice))
-			continue;
-	
-		std::cout << '\n' << globalLayerProperty.properties.description << "\n\t|\n\t|---[Layer Name]--> " << globalLayerProperty.properties.layerName << '\n';
-		layerPropertyList.push_back(layerProperties);
+	physicalDeviceExtensionProperties.resize(extensionCount);
+	result = vkEnumerateDeviceExtensionProperties(*physicalDevice, nullptr, &extensionCount, physicalDeviceExtensionProperties.data());
 
-		if (layerProperties.extensions.size()) {
-			for (const auto& extension : layerProperties.extensions) {
-				std::cout << "\n\t\t|\n\t\t|---[Device Extension]--> " << extension.extensionName << '\n';
+	return result;
+}
+
+std::vector<const char*> VulkanLayerAndExtension::fetchEnableLayers(std::vector<const char*>& desiredLayers)
+{
+	uint32_t numberOfAvailable = static_cast<uint32_t>(layerProperties.size());
+	uint32_t numberOfDesired = static_cast<uint32_t>(desiredLayers.size());
+	std::vector<const char*> enableLayers;
+
+	for (uint32_t i = 0; i < numberOfDesired; ++i) {
+		for (uint32_t j = 0; j < numberOfAvailable; ++j) {
+			if (strcmp(desiredLayers[i], layerProperties[j].layerName) == 0) {
+				enableLayers.push_back(desiredLayers[i]);
+				break;
 			}
 		}
-		else {
-			std::cout << "\n\t\t|\n\t\t|---[Device Extension]--> No Extension Found.\n";
+	}
+
+	return enableLayers;
+}
+
+std::vector<const char*> VulkanLayerAndExtension::fetchInstanceEnableExtensions(std::vector<const char*>& desiredExtensions) {
+	uint32_t numberOfAvailable = static_cast<uint32_t>(extensionProperties.size());
+	uint32_t numberOfDesired = static_cast<uint32_t>(desiredExtensions.size());
+	std::vector<const char*> enableExtensions;
+
+	for (uint32_t i = 0; i < numberOfDesired; ++i) {
+		for (uint32_t j = 0; j < numberOfAvailable; ++j) {
+			if (strcmp(desiredExtensions[i], extensionProperties[j].extensionName) == 0) {
+				enableExtensions.push_back(desiredExtensions[i]);
+				break;
+			}
 		}
 	}
 
-	return result;
+	return enableExtensions;
 }
 
+std::vector<const char*> VulkanLayerAndExtension::fetchDeviceEnableExtensions(std::vector<const char*>& desiredExtensions) {
+	uint32_t numberOfAvailable = static_cast<uint32_t>(physicalDeviceExtensionProperties.size());
+	uint32_t numberOfDesired = static_cast<uint32_t>(desiredExtensions.size());
+	std::vector<const char*> enableExtensions;
+
+	for (uint32_t i = 0; i < numberOfDesired; ++i) {
+		for (uint32_t j = 0; j < numberOfAvailable; ++j) {
+			if (strcmp(desiredExtensions[i], physicalDeviceExtensionProperties[j].extensionName) == 0) {
+				enableExtensions.push_back(desiredExtensions[i]);
+				break;
+			}
+		}
+	}
+
+	return enableExtensions;
+}
+
+/* Debug Layer */
 VkResult VulkanLayerAndExtension::createDebugReportCallback()
 {
 	VkResult result;
 	VulkanApplication* app = VulkanApplication::GetApp();
 	VkInstance* instance = app->getVulkanInstance()->getVkInstance();
-
-	// ...
 
 	dbgCreateDebugReportCallback = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(*instance, "vkCreateDebugReportCallbackEXT");
 	if (!dbgCreateDebugReportCallback) {
@@ -178,34 +177,4 @@ VKAPI_ATTR VkBool32 VKAPI_CALL VulkanLayerAndExtension::debugFunction(VkFlags ms
 
 	fflush(stdout);
 	return VK_TRUE;
-}
-
-VkBool32 VulkanLayerAndExtension::areLayersSupported(std::vector<const char*>& layerNames)
-{
-	uint32_t checkCount = static_cast<uint32_t>(layerNames.size());
-	uint32_t layerCount = static_cast<uint32_t>(layerPropertyList.size());
-	std::vector<const char*> unsupportedLayerNames;
-
-	for (uint32_t i = 0; i < checkCount; ++i) {
-		VkBool32 isSupported = 0;
-		for (uint32_t j = 0; j < layerCount; ++j) {
-			if (!strcmp(layerNames[i], layerPropertyList[j].properties.layerName)) { isSupported = 1; }
-		}
-
-		if (!isSupported) {
-			std::cout << "No layer support found, removed from layer: " << layerNames[i] << '\n';
-			unsupportedLayerNames.push_back(layerNames[i]);
-		}
-		else {
-			std::cout << "Layer supported: " << layerNames[i] << '\n';
-		}
-	}
-
-	for (const auto& layer : unsupportedLayerNames) {
-		auto pos = std::find(layerNames.begin(), layerNames.end(), layer);
-		if (pos != layerNames.end()) 
-			layerNames.erase(pos);
-	}
-	
-	return true;
 }

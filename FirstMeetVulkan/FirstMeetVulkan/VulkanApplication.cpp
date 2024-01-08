@@ -8,7 +8,7 @@ extern std::vector<const char*> layerNames;
 extern std::vector<const char*> deviceExtensionNames;
 
 VulkanApplication::VulkanApplication() {
-	instance.getLayerExtension()->getInstanceLayerProperties();
+	instance.initialize();
 }
 
 VulkanApplication::~VulkanApplication() {
@@ -24,14 +24,10 @@ VulkanApplication* VulkanApplication::GetApp() {
 void VulkanApplication::initialize() {
 	std::vector<VkPhysicalDevice> gpuList;
 
-#ifndef NDEBUG
-	instance.getLayerExtension()->areLayersSupported(layerNames);
-#endif // !NDEBUG
-
 	instance.createInstance(layerNames, instanceExtensionNames, AppName);
 
 #ifndef NDEBUG
-	instance.getLayerExtension()->createDebugReportCallback();
+	instance.setupDebugLayer();
 #endif // !NDEBUG
 
 	enumeratePhysicalDevices(gpuList);
@@ -60,19 +56,9 @@ VkResult VulkanApplication::enumeratePhysicalDevices(std::vector<VkPhysicalDevic
 	return  result;
 }
 
-VkResult VulkanApplication::handShakeWithDevice(VkPhysicalDevice* gpu, std::vector<const char*>& layers, std::vector<const char*>& extensions)
-{
+VkResult VulkanApplication::handShakeWithDevice(VkPhysicalDevice* gpu, std::vector<const char*>& layers, std::vector<const char*>& extensions) {
 	device = new VulkanDevice(gpu);
-
-	device->getLayerExtension()->getDeviceExtensionProperties(gpu);
-	
-	vkGetPhysicalDeviceProperties(*gpu, device->getPhysicalDeviceProperties());
-	vkGetPhysicalDeviceMemoryProperties(*gpu, device->getMemoryProperties());
-
-	device->getPhysicalDeviceQueuesAndProperties();
-	device->getGraphicsQueueHandle();
-
-	return device->createDevice(layers, extensions);
+	return device->createLogicalDevice(layers, extensions);
 }
 
 /* TODO : Lifecycle of application */
@@ -92,8 +78,5 @@ void VulkanApplication::deInitialize() {
 	rendererObject->destroyPresentationWindow();
 
 	device->destroyDevice();
-#ifndef NDEBUG
-	instance.getLayerExtension()->destroyDebugReportCallback();
-#endif // !NDEBUG
 	instance.destroyInstance();
 }

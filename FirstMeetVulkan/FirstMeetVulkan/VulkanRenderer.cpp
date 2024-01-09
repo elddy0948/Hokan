@@ -1,6 +1,7 @@
 #include "VulkanRenderer.h"
 #include "VulkanApplication.h"
 #include "CommandBufferManager.h"
+#include "MeshData.h"
 
 VulkanRenderer::VulkanRenderer(VulkanDevice* device) {
 	memset(&Depth, 0, sizeof(Depth));
@@ -16,6 +17,7 @@ VulkanRenderer::~VulkanRenderer() {
 }
 
 void VulkanRenderer::initialize(const int width, const int height) {
+	const bool includeDepth = true;
 	this->width = width;
 	this->height = height;
 
@@ -23,6 +25,8 @@ void VulkanRenderer::initialize(const int width, const int height) {
 	swapChainObject->initializeSwapChain();
 	createCommandPool();
 	buildSwapChainAndDepthImage();
+
+	createRenderPass(includeDepth);
 }
 
 bool VulkanRenderer::render() {
@@ -248,8 +252,70 @@ void VulkanRenderer::createDepthImage() {
 	assert(result == VK_SUCCESS);
 }
 
+void VulkanRenderer::createRenderPass(bool includeDepth, bool clear) {
+	VkResult result;
+	VkAttachmentDescription attachments[2];
+	VkAttachmentReference colorReference = {};
+	VkAttachmentReference depthReference = {};
+	VkSubpassDescription subpass = {};
+	VkRenderPassCreateInfo renderPassInfo = {};
+
+	attachments[0].format = swapChainObject->swapChainPublicVariables.format;
+	attachments[0].samples = NUM_SAMPLES;
+	attachments[0].loadOp = clear ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	attachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	attachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	attachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	attachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	attachments[0].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+	attachments[0].flags = VK_ATTACHMENT_DESCRIPTION_MAY_ALIAS_BIT;
+
+	if (includeDepth) {
+		attachments[1].format = Depth.format;
+		attachments[1].samples = NUM_SAMPLES;
+		attachments[1].loadOp = clear ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+		attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+		attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
+		attachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		attachments[1].flags = VK_ATTACHMENT_DESCRIPTION_MAY_ALIAS_BIT;
+	}
+
+	colorReference.attachment = 0;
+	colorReference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+	depthReference.attachment = 1;
+	depthReference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+	subpass.flags = 0;
+	subpass.inputAttachmentCount = 0;
+	subpass.pInputAttachments = nullptr;
+	subpass.colorAttachmentCount = 1;
+	subpass.pColorAttachments = &colorReference;
+	subpass.pResolveAttachments = nullptr;
+	subpass.pDepthStencilAttachment = includeDepth ? &depthReference : nullptr;
+	subpass.preserveAttachmentCount = 0;
+	subpass.pPreserveAttachments = nullptr;
+
+	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+	renderPassInfo.attachmentCount = includeDepth ? 2 : 1;
+	renderPassInfo.pAttachments = attachments;
+	renderPassInfo.subpassCount = 1;
+	renderPassInfo.pSubpasses = &subpass;
+	renderPassInfo.dependencyCount = 0;
+	renderPassInfo.pDependencies = nullptr;
+
+	result = vkCreateRenderPass(*deviceObject->getVkDevice(), &renderPassInfo, nullptr, &renderPass);
+	assert(result == VK_SUCCESS);
+}
+
 void VulkanRenderer::deinitialize() {
 	VkCommandBuffer buffers[] = { commandDepthImage };
+
+	/* Reder pass */
+	vkDestroyRenderPass(*deviceObject->getVkDevice(), renderPass, nullptr);
 
 	/* Depth buffer */
 	vkDestroyImageView(*deviceObject->getVkDevice(), Depth.imageView, nullptr);

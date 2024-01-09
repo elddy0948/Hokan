@@ -4,6 +4,7 @@
 
 #include "Headers.h"
 #include "VulkanSwapChain.h"
+#include "VulkanDrawable.h"
 
 #define NUM_SAMPLES VK_SAMPLE_COUNT_1_BIT
 
@@ -25,6 +26,10 @@ public:
 	void createCommandPool();
 	void buildSwapChainAndDepthImage(); 
 	void createDepthImage();
+
+	/* Render pass */
+	void createRenderPass(bool includeDepth, bool clear = true);
+	void destroyRenderPass();
 
 	void deinitialize();
 
@@ -50,6 +55,8 @@ public:
 	
 	unsigned int width = 800;
 	unsigned int height = 600;
+
+	VkRenderPass renderPass;
 
 private:
 	VulkanDevice* deviceObject = nullptr;

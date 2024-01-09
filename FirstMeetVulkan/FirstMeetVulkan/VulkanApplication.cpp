@@ -13,7 +13,9 @@ VulkanApplication::VulkanApplication() {
 
 VulkanApplication::~VulkanApplication() {
 	delete rendererObject;
+	delete device;
 	rendererObject = nullptr;
+	device = nullptr;
 }
 
 VulkanApplication* VulkanApplication::GetApp() {

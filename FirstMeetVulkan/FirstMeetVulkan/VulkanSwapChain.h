@@ -66,7 +66,7 @@ private:
 	PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR	fpGetPhysicalDeviceSurfaceCapabilitiesKHR	= nullptr;
 	PFN_vkGetPhysicalDeviceSurfaceFormatsKHR		fpGetPhysicalDeviceSurfaceFormatsKHR		= nullptr;
 	PFN_vkGetPhysicalDeviceSurfacePresentModesKHR	fpGetPhysicalDeviceSurfacePresentModesKHR	= nullptr;
-	PFN_vkDestroySurfaceKHR							fpDestroySurfaceKHR;
+	PFN_vkDestroySurfaceKHR							fpDestroySurfaceKHR = nullptr;
 
 	PFN_vkCreateSwapchainKHR	fpCreateSwapchainKHR	= nullptr;
 	PFN_vkDestroySwapchainKHR	fpDestroySwapchainKHR	= nullptr;

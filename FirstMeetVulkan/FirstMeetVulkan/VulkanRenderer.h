@@ -27,9 +27,8 @@ public:
 	void buildSwapChainAndDepthImage(); 
 	void createDepthImage();
 
-	/* Render pass */
 	void createRenderPass(bool includeDepth, bool clear = true);
-	void destroyRenderPass();
+	void createFrameBuffer(bool includeDepth);
 
 	void deinitialize();
 
@@ -57,6 +56,7 @@ public:
 	unsigned int height = 600;
 
 	VkRenderPass renderPass;
+	std::vector<VkFramebuffer> framebuffers;
 
 private:
 	VulkanDevice* deviceObject = nullptr;

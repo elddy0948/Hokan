@@ -50,6 +50,8 @@ void VulkanSwapChain::initializeSwapChain() {
 void VulkanSwapChain::createSwapChain(const VkCommandBuffer& commandBuffer) {
 	getSurfaceCapabilitiesAndPresentMode();
 	managePresentMode();
+	createSwapChainColorImages();
+	createColorImageView(commandBuffer);
 }
 
 void VulkanSwapChain::destroySwapChain() {
@@ -245,6 +247,7 @@ void VulkanSwapChain::createSwapChainColorImages() {
 	swapchainInfo.oldSwapchain = VK_NULL_HANDLE;
 	swapchainInfo.clipped = true;
 	swapchainInfo.imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+	swapchainInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 	swapchainInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
 	swapchainInfo.queueFamilyIndexCount = 0;
 	swapchainInfo.pQueueFamilyIndices = nullptr;

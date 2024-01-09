@@ -20,6 +20,7 @@ public:
 public:
 	VulkanInstance* getVulkanInstance() { return &instance; }
 	VulkanDevice* getVulkanDevice() { return device; }
+	VulkanRenderer* getRenderer() { return rendererObject; }
 
 public:
 	/* Life Cycle */

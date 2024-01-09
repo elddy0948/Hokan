@@ -9,6 +9,11 @@ VulkanRenderer::VulkanRenderer(VulkanDevice* device) {
 
 	deviceObject = device;
 	swapChainObject = new VulkanSwapChain(this);
+
+	VulkanDrawable* drawableObject = new VulkanDrawable(this);
+	drawableList.push_back(drawableObject);
+
+	//delete drawableObject;
 }
 
 VulkanRenderer::~VulkanRenderer() {
@@ -30,6 +35,12 @@ void VulkanRenderer::initialize(const int width, const int height) {
 	createFrameBuffer(includeDepth);
 }
 
+void VulkanRenderer::prepare() {
+	for (const auto& drawableObject : drawableList) {
+		drawableObject->prepare();
+	}
+}
+
 bool VulkanRenderer::render() {
 	MSG msg;
 	PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE);
@@ -40,12 +51,16 @@ bool VulkanRenderer::render() {
 	return true;
 }
 
-LRESULT VulkanRenderer::WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-	VulkanApplication* app = VulkanApplication::GetApp();
+LRESULT VulkanRenderer::WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+ 	VulkanApplication* app = VulkanApplication::GetApp();
 	switch (uMsg) {
 	case WM_CLOSE:
 		PostQuitMessage(0);
+		break;
+	case WM_PAINT:
+		for (const auto& drawableObject : app->getRenderer()->drawableList) {
+			drawableObject->render();
+		}
 		break;
 	default:
 		break;
@@ -318,6 +333,8 @@ void VulkanRenderer::createFrameBuffer(bool includeDepth) {
 	VkFramebufferCreateInfo framebufferInfo = {};
 	uint32_t i;
 
+	attachments[1] = Depth.imageView;
+
 	framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 	framebufferInfo.pNext = nullptr;
 	framebufferInfo.renderPass = renderPass;
@@ -342,7 +359,7 @@ void VulkanRenderer::deinitialize() {
 
 	/* Frame buffer */
 	for (uint32_t i = 0; i < swapChainObject->swapChainPublicVariables.swapChainImageCount; ++i) {
-		vkDestroyFramebuffer(*deviceObject->getVkDevice(), &framebuffers.at(i), nullptr);
+		vkDestroyFramebuffer(*deviceObject->getVkDevice(), framebuffers.at(i), nullptr);
 	}
 	framebuffers.clear();
 

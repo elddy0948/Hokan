@@ -18,6 +18,7 @@ public:
 
 	void initialize(const int width, const int height);
 	bool render();
+	void prepare();
 
 	void setImageLayout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout, VkAccessFlagBits srcAccessMask, const VkCommandBuffer& commandBuffer);
 	
@@ -58,6 +59,7 @@ public:
 
 	VkRenderPass renderPass;
 	std::vector<VkFramebuffer> framebuffers;
+	std::vector<VulkanDrawable*> drawableList;
 
 private:
 	VulkanDevice* deviceObject = nullptr;

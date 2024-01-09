@@ -132,16 +132,16 @@ void VulkanDrawable::recordCommandBuffer(int currentBuffer, VkCommandBuffer* dra
 
 	switch (currentBuffer) {
 	case 0:
-		clearValues[0].color = { 1.0f, 0.0f, 0.0f, 0.0f };
+		clearValues[0].color = { 1.0f, 0.0f, 0.0f, 1.0f };
 		break;
 	case 1:
-		clearValues[0].color = { 0.0f, 1.0f, 0.0f, 0.0f };
+		clearValues[0].color = { 0.0f, 1.0f, 0.0f, 1.0f };
 		break;
 	case 2:
-		clearValues[0].color = { 0.0f, 0.0f, 1.0f, 0.0f };
+		clearValues[0].color = { 0.0f, 0.0f, 1.0f, 1.0f };
 		break;
 	default:
-		clearValues[0].color = { 0.0f, 0.0f, 0.0f, 0.0f };
+		clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
 		break;
 	}
 

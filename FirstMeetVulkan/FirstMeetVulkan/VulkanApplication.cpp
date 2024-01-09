@@ -36,8 +36,8 @@ void VulkanApplication::initialize() {
 		handShakeWithDevice(&gpuList[0], layerNames, deviceExtensionNames);
 	}
 
-	rendererObject = new VulkanRenderer(this, device);
-	rendererObject->initialize();
+	rendererObject = new VulkanRenderer(device);
+	rendererObject->initialize(800, 600);
 }
 
 VkResult VulkanApplication::enumeratePhysicalDevices(std::vector<VkPhysicalDevice>& devices)
@@ -71,12 +71,7 @@ bool VulkanApplication::render() {
 }
 
 void VulkanApplication::deInitialize() {
-	rendererObject->destroyDepthBuffer();
-	rendererObject->getSwapChain()->destroySwapChain();
-	rendererObject->destroyCommandBuffer();
-	rendererObject->destroyCommandPool();
-	rendererObject->destroyPresentationWindow();
-
+	rendererObject->deinitialize();
 	device->destroyDevice();
 	instance.destroyInstance();
 }

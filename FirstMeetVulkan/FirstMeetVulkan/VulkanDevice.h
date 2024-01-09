@@ -41,7 +41,6 @@ private:
 	
 	VkQueue queue = nullptr;
 	std::vector<VkQueueFamilyProperties> queueFamilyProperties;
-
 	uint32_t graphicsQueueFamilyIndex = 0;
 	uint32_t queueFamilyCount = 0;
 

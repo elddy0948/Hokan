@@ -9,37 +9,33 @@
 
 class VulkanRenderer {
 public:
-	VulkanRenderer(VulkanApplication* app, VulkanDevice* device);
+	VulkanRenderer(VulkanDevice* device);
 	~VulkanRenderer();
 
 public:
-	void initialize();
+	static LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+	void initialize(const int width, const int height);
 	bool render();
 
-	void createPresentationWindow(const int& windowWidth = 500, const int& windowHeight = 500);
 	void setImageLayout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout, VkAccessFlagBits srcAccessMask, const VkCommandBuffer& commandBuffer);
 	
-	static LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-	
-	void destroyPresentationWindow();
-
-	inline VulkanApplication* getApplication() { return application; }
-	inline VulkanDevice* getDevice() { return deviceObject; }
-	inline VulkanSwapChain* getSwapChain() { return swapChainObject; }
+	VulkanDevice* getDevice() { return deviceObject; }
 
 	void createCommandPool();
-	void buildSwapChainAndDepthImage();
+	void buildSwapChainAndDepthImage(); 
 	void createDepthImage();
 
-	void destroyCommandBuffer();
-	void destroyCommandPool();
-	void destroyDepthBuffer();
+	void deinitialize();
+
+private:
+	void createPresentationWindow();
 
 public:
 #ifdef _WIN32
-	HINSTANCE connection;
-	char name[APP_NAME_STR_LEN];
-	HWND window;
+	HINSTANCE connection = nullptr;
+	char name[APP_NAME_STR_LEN] = {};
+	HWND window = nullptr;
 #endif // _WIN32
 
 	struct {
@@ -51,12 +47,11 @@ public:
 
 	VkCommandBuffer commandDepthImage = nullptr;
 	VkCommandPool commandPool = nullptr;
-
-	int width = 500;
-	int height = 500;
+	
+	unsigned int width = 800;
+	unsigned int height = 600;
 
 private:
-	VulkanApplication* application = nullptr;
 	VulkanDevice* deviceObject = nullptr;
 	VulkanSwapChain* swapChainObject = nullptr;
 };

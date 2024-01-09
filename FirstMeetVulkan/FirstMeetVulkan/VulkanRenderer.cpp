@@ -2,16 +2,11 @@
 #include "VulkanApplication.h"
 #include "CommandBufferManager.h"
 
-VulkanRenderer::VulkanRenderer(VulkanApplication* app, VulkanDevice* device) {
-	//assert(application != nullptr);
-	//assert(deviceObject != nullptr);
-
+VulkanRenderer::VulkanRenderer(VulkanDevice* device) {
 	memset(&Depth, 0, sizeof(Depth));
 	memset(&connection, 0, sizeof(HINSTANCE));
 
-	application = app;
 	deviceObject = device;
-
 	swapChainObject = new VulkanSwapChain(this);
 }
 
@@ -20,8 +15,11 @@ VulkanRenderer::~VulkanRenderer() {
 	swapChainObject = nullptr;
 }
 
-void VulkanRenderer::initialize() {
-	createPresentationWindow(500, 500);
+void VulkanRenderer::initialize(const int width, const int height) {
+	this->width = width;
+	this->height = height;
+
+	createPresentationWindow();
 	swapChainObject->initializeSwapChain();
 	createCommandPool();
 	buildSwapChainAndDepthImage();
@@ -50,15 +48,12 @@ LRESULT VulkanRenderer::WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 	return (DefWindowProc(hwnd, uMsg, wParam, lParam));
 }
 
-void VulkanRenderer::createPresentationWindow(const int& windowWidth, const int& windowHeight) {
+void VulkanRenderer::createPresentationWindow() {
 #ifdef _WIN32
-	width = windowWidth;
-	height = windowHeight;
-
 	assert(width > 0 || height > 0);
 
 	WNDCLASSEX windowInfo;
-	sprintf_s(name, "SwapChain presentation window");
+	sprintf_s(name, "Hello Triangle");
 	memset(&windowInfo, 0, sizeof(WNDCLASSEX));
 
 	windowInfo.cbSize = sizeof(WNDCLASSEX);
@@ -80,20 +75,20 @@ void VulkanRenderer::createPresentationWindow(const int& windowWidth, const int&
 		exit(1);
 	}
 
-	RECT wr = { 0, 0, width, height };
+	RECT wr = { 0, 0, static_cast<LONG>(width), static_cast<LONG>(height) };
 	AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);
 
-	window = CreateWindowEx(0, name, name, WS_OVERLAPPEDWINDOW | WS_VISIBLE | WS_SYSMENU, 100, 100, wr.right - wr.left, wr.bottom - wr.top, nullptr, nullptr, connection, nullptr);
+	window = CreateWindowEx(0, name, name, WS_OVERLAPPEDWINDOW | WS_VISIBLE | WS_SYSMENU, CW_USEDEFAULT, CW_USEDEFAULT, wr.right - wr.left, wr.bottom - wr.top, nullptr, nullptr, connection, nullptr);
 
 	if (!window) {
 		printf("[ ! ] : Can't create window in which to draw!\n");
 		fflush(stdout);
 		exit(1);
 	}
-	SetWindowLongPtr(window, GWLP_USERDATA, (LONG_PTR)&application);
+
+	SetWindowLongPtr(window, GWLP_USERDATA, (LONG_PTR)VulkanApplication::GetApp());
 
 #endif // _WIN32
-
 }
 
 void VulkanRenderer::setImageLayout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout, VkAccessFlagBits srcAccessMask, const VkCommandBuffer& commandBuffer) {
@@ -140,12 +135,7 @@ void VulkanRenderer::setImageLayout(VkImage image, VkImageAspectFlags aspectMask
 	vkCmdPipelineBarrier(commandBuffer, srcStages, dstStages, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
 }
 
-void VulkanRenderer::destroyPresentationWindow() {
-	DestroyWindow(window);
-}
-
 void VulkanRenderer::createCommandPool() {
-	VulkanDevice* deviceObject = application->getVulkanDevice();
 	VkResult result;
 	VkCommandPoolCreateInfo commandPoolCreateInfo = {};
 
@@ -258,18 +248,23 @@ void VulkanRenderer::createDepthImage() {
 	assert(result == VK_SUCCESS);
 }
 
-void VulkanRenderer::destroyCommandBuffer() {
+void VulkanRenderer::deinitialize() {
 	VkCommandBuffer buffers[] = { commandDepthImage };
-	vkFreeCommandBuffers(*deviceObject->getVkDevice(), commandPool, sizeof(buffers) / sizeof(VkCommandBuffer), buffers);
-}
 
-void VulkanRenderer::destroyCommandPool() {
-	VulkanDevice* deviceObject = application->getVulkanDevice();
-	vkDestroyCommandPool(*deviceObject->getVkDevice(), commandPool, nullptr);
-}
-
-void VulkanRenderer::destroyDepthBuffer() {
+	/* Depth buffer */
 	vkDestroyImageView(*deviceObject->getVkDevice(), Depth.imageView, nullptr);
 	vkDestroyImage(*deviceObject->getVkDevice(), Depth.image, nullptr);
 	vkFreeMemory(*deviceObject->getVkDevice(), Depth.deviceMemory, nullptr);
+
+	/* Swapchain */
+	swapChainObject->destroySwapChain();
+
+	/* Command buffer */
+	vkFreeCommandBuffers(*deviceObject->getVkDevice(), commandPool, sizeof(buffers) / sizeof(VkCommandBuffer), buffers);
+
+	/* Command pool */
+	vkDestroyCommandPool(*deviceObject->getVkDevice(), commandPool, nullptr);
+	
+	/* Presentation window */
+	DestroyWindow(window);
 }

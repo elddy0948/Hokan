@@ -2,6 +2,7 @@
 
 #include "VulkanApplication.h"
 #include "VulkanRenderer.h"
+#include "CommandBufferManager.h"
 
 VulkanDrawable::VulkanDrawable(VulkanRenderer* parent) : rendererObject(parent) {
 	memset(&VertexBuffer, 0, sizeof(VertexBuffer));
@@ -72,8 +73,93 @@ void VulkanDrawable::createVertexBuffer(const void* vertexData, uint32_t dataSiz
 	vertexInputAttribute[1].offset = 16;
 }
 
+void VulkanDrawable::prepare() {
+	VulkanDevice* deviceObject = rendererObject->getDevice();
+
+	drawCommands.resize(rendererObject->getSwapchain()->swapChainPublicVariables.colorBuffer.size());
+
+	for (size_t i = 0; i < rendererObject->getSwapchain()->swapChainPublicVariables.colorBuffer.size(); ++i) {
+		CommandBufferManager::allocCommandBuffer(deviceObject->getVkDevice(), *rendererObject->getCommandPool() , &drawCommands[i]);
+		CommandBufferManager::beginCommandBuffer(drawCommands[i]);
+
+		recordCommandBuffer(i, &drawCommands[i]);
+
+		CommandBufferManager::endCommandBuffer(drawCommands[i]);
+	}
+
+}
+
+void VulkanDrawable::render() {
+	VulkanDevice* deviceObject = rendererObject->getDevice();
+	VulkanSwapChain* swapchainObject = rendererObject->getSwapchain();
+
+	uint32_t& currentColorImage = swapchainObject->swapChainPublicVariables.currentColorBuffer;
+	VkSwapchainKHR& swapchain = swapchainObject->swapChainPublicVariables.swapChain;
+	VkSemaphore presentCompleteSemaphore;
+	VkSemaphoreCreateInfo semaphoreCreateInfo = {};
+
+	semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+	semaphoreCreateInfo.pNext = nullptr;
+	semaphoreCreateInfo.flags = 0;
+	vkCreateSemaphore(*deviceObject->getVkDevice(), &semaphoreCreateInfo, nullptr, &presentCompleteSemaphore);
+
+	Sleep(1000);
+
+	VkResult result = swapchainObject->fpAcquireNextImageKHR(*deviceObject->getVkDevice(), swapchain, UINT64_MAX, presentCompleteSemaphore, VK_NULL_HANDLE, &currentColorImage);
+
+	CommandBufferManager::submitCommandBuffer(*deviceObject->getQueue(), &drawCommands[currentColorImage], nullptr);
+
+	VkPresentInfoKHR present = {};
+	present.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+	present.swapchainCount = 1;
+	present.pSwapchains = &swapchain;
+	present.pImageIndices = &currentColorImage;
+
+	result = swapchainObject->fpQueuePresentKHR(*deviceObject->getQueue(), &present);
+	assert(result == VK_SUCCESS);
+
+	vkDestroySemaphore(*deviceObject->getVkDevice(), presentCompleteSemaphore, nullptr);
+}
+
 void VulkanDrawable::destroyVertexBuffer() {
 	VulkanDevice* deviceObject = rendererObject->getDevice();
 	vkDestroyBuffer(*deviceObject->getVkDevice(), VertexBuffer.buffer, nullptr);
 	vkFreeMemory(*deviceObject->getVkDevice(), VertexBuffer.memory, nullptr);
+}
+
+void VulkanDrawable::recordCommandBuffer(int currentBuffer, VkCommandBuffer* drawCommand) {
+	VkClearValue clearValues[2];
+
+	switch (currentBuffer) {
+	case 0:
+		clearValues[0].color = { 1.0f, 0.0f, 0.0f, 0.0f };
+		break;
+	case 1:
+		clearValues[0].color = { 0.0f, 1.0f, 0.0f, 0.0f };
+		break;
+	case 2:
+		clearValues[0].color = { 0.0f, 0.0f, 1.0f, 0.0f };
+		break;
+	default:
+		clearValues[0].color = { 0.0f, 0.0f, 0.0f, 0.0f };
+		break;
+	}
+
+	clearValues[1].depthStencil.depth = 1.0f;
+	clearValues[1].depthStencil.stencil = 0;
+
+	VkRenderPassBeginInfo renderPassBegin = {};
+	renderPassBegin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	renderPassBegin.pNext = nullptr;
+	renderPassBegin.renderPass = rendererObject->renderPass;
+	renderPassBegin.framebuffer = rendererObject->framebuffers[currentBuffer];
+	renderPassBegin.renderArea.offset.x = 0;
+	renderPassBegin.renderArea.offset.y = 0;
+	renderPassBegin.renderArea.extent.width = rendererObject->width;
+	renderPassBegin.renderArea.extent.height = rendererObject->height;
+	renderPassBegin.clearValueCount = 2;
+	renderPassBegin.pClearValues = clearValues;
+
+	vkCmdBeginRenderPass(*drawCommand, &renderPassBegin, VK_SUBPASS_CONTENTS_INLINE);
+	vkCmdEndRenderPass(*drawCommand);
 }

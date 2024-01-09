@@ -13,7 +13,14 @@ public:
 
 public:
 	void createVertexBuffer(const void* vertexData, uint32_t dataSize, uint32_t dataStride, bool useTexture);
+
+	void prepare();
+	void render();
+
 	void destroyVertexBuffer();
+
+private:
+	void recordCommandBuffer(int currentBuffer, VkCommandBuffer* drawCommand);
 
 public:
 	struct {
@@ -24,6 +31,9 @@ public:
 
 	VkVertexInputBindingDescription vertexInputBind = {};
 	VkVertexInputAttributeDescription vertexInputAttribute[2] = {};
+
+private:
+	std::vector<VkCommandBuffer> drawCommands;
 	VulkanRenderer* rendererObject;
 };
 

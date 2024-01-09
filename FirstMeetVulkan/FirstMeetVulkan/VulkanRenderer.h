@@ -22,6 +22,8 @@ public:
 	void setImageLayout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout, VkAccessFlagBits srcAccessMask, const VkCommandBuffer& commandBuffer);
 	
 	VulkanDevice* getDevice() { return deviceObject; }
+	VulkanSwapChain* getSwapchain() { return swapChainObject; }
+	VkCommandPool* getCommandPool() { return &commandPool; }
 
 	void createCommandPool();
 	void buildSwapChainAndDepthImage(); 
@@ -50,7 +52,6 @@ public:
 	} Depth;
 
 	VkCommandBuffer commandDepthImage = nullptr;
-	VkCommandPool commandPool = nullptr;
 	
 	unsigned int width = 800;
 	unsigned int height = 600;
@@ -61,6 +62,8 @@ public:
 private:
 	VulkanDevice* deviceObject = nullptr;
 	VulkanSwapChain* swapChainObject = nullptr;
+	VkCommandPool commandPool = nullptr;
+
 };
 
 #endif /* !VULKAN_RENDERER_H */

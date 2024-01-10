@@ -1,6 +1,7 @@
 #include "VulkanRenderer.h"
 #include "VulkanApplication.h"
 #include "CommandBufferManager.h"
+#include "Helper.h"
 #include "MeshData.h"
 
 VulkanRenderer::VulkanRenderer(VulkanDevice* device) {
@@ -33,6 +34,8 @@ void VulkanRenderer::initialize(const int width, const int height) {
 
 	createRenderPass(includeDepth);
 	createFrameBuffer(includeDepth);
+
+	createShaders();
 }
 
 void VulkanRenderer::prepare() {
@@ -60,6 +63,11 @@ LRESULT VulkanRenderer::WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 	case WM_PAINT:
 		for (const auto& drawableObject : app->getRenderer()->drawableList) {
 			drawableObject->render();
+		}
+		break;
+	case WM_KEYDOWN:
+		if (wParam == VK_ESCAPE) {
+			PostQuitMessage(0);
 		}
 		break;
 	default:
@@ -352,6 +360,26 @@ void VulkanRenderer::createFrameBuffer(bool includeDepth) {
 		result = vkCreateFramebuffer(*deviceObject->getVkDevice(), &framebufferInfo, nullptr, &framebuffers.at(i));
 		assert(result == VK_SUCCESS);
 	}
+}
+
+void VulkanRenderer::createShaders() {
+	void* vertexShaderCode;
+	void* fragmentShaderCode;
+	size_t vertexShaderSize;
+	size_t fragmentShaderSize;
+
+#ifdef AUTO_COMPILE_GLSL_TO_SPV
+	vertexShaderCode = readFile("./../Draw.vert", &vertexShaderSize);
+	fragmentShaderCode = readFile("./../Draw.frag", &fragmentShaderSize);
+
+	shaderObject.buildShader((const char*)vertexShaderCode, (const char*)fragmentShaderCode);
+#else
+	vertexShaderCode = readFile("./Draw-vert.spv", &vertexShaderSize);
+	fragmentShaderCode = readFile("./Draw-frag.spv", &fragmentShaderSize);
+
+	shaderObject.buildShaderModuleWithSPV(static_cast<uint32_t*>(vertexShaderCode), vertexShaderSize, static_cast<uint32_t*>(fragmentShaderCode), fragmentShaderSize);
+#endif // AUTO_COMPILE_GLSL_TO_SPV
+
 }
 
 void VulkanRenderer::deinitialize() {

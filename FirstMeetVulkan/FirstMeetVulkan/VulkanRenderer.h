@@ -5,6 +5,7 @@
 #include "Headers.h"
 #include "VulkanSwapChain.h"
 #include "VulkanDrawable.h"
+#include "VulkanShader.h"
 
 #define NUM_SAMPLES VK_SAMPLE_COUNT_1_BIT
 
@@ -32,6 +33,8 @@ public:
 
 	void createRenderPass(bool includeDepth, bool clear = true);
 	void createFrameBuffer(bool includeDepth);
+
+	void createShaders();
 
 	void deinitialize();
 
@@ -65,7 +68,7 @@ private:
 	VulkanDevice* deviceObject = nullptr;
 	VulkanSwapChain* swapChainObject = nullptr;
 	VkCommandPool commandPool = nullptr;
-
+	VulkanShader shaderObject;
 };
 
 #endif /* !VULKAN_RENDERER_H */

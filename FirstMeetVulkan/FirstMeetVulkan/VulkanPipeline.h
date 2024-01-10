@@ -23,8 +23,8 @@ public:
 	void destroyPipelineCache();
 
 private:
-	VkPipelineCache pipelineCache;
-	VkPipelineLayout pipelineLayout;
+	VkPipelineCache pipelineCache = nullptr;
+	VkPipelineLayout pipelineLayout = nullptr;
 	VulkanApplication* appObject;
 	VulkanDevice* deviceObject;
 };

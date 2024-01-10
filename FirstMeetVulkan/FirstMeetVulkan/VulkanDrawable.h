@@ -17,6 +17,8 @@ public:
 	void prepare();
 	void render();
 
+	void setPipeline(VkPipeline* pipeline) { this->pipeline = pipeline; }
+
 	void destroyVertexBuffer();
 
 private:
@@ -35,6 +37,7 @@ public:
 private:
 	std::vector<VkCommandBuffer> drawCommands;
 	VulkanRenderer* rendererObject;
+	VkPipeline* pipeline;
 };
 
 

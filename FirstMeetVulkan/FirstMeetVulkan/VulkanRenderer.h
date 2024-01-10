@@ -6,6 +6,7 @@
 #include "VulkanSwapChain.h"
 #include "VulkanDrawable.h"
 #include "VulkanShader.h"
+#include "VulkanPipeline.h"
 
 #define NUM_SAMPLES VK_SAMPLE_COUNT_1_BIT
 
@@ -36,6 +37,8 @@ public:
 
 	void createShaders();
 
+	void createPipelineStateManagement();
+
 	void deinitialize();
 
 private:
@@ -63,12 +66,14 @@ public:
 	VkRenderPass renderPass;
 	std::vector<VkFramebuffer> framebuffers;
 	std::vector<VulkanDrawable*> drawableList;
+	std::vector<VkPipeline*> pipelineList;
 
 private:
 	VulkanDevice* deviceObject = nullptr;
 	VulkanSwapChain* swapChainObject = nullptr;
 	VkCommandPool commandPool = nullptr;
 	VulkanShader shaderObject;
+	VulkanPipeline pipelineObject;
 };
 
 #endif /* !VULKAN_RENDERER_H */

@@ -36,6 +36,7 @@ void VulkanRenderer::initialize(const int width, const int height) {
 	createFrameBuffer(includeDepth);
 
 	createShaders();
+	createPipelineStateManagement();
 }
 
 void VulkanRenderer::prepare() {
@@ -382,8 +383,34 @@ void VulkanRenderer::createShaders() {
 
 }
 
+void VulkanRenderer::createPipelineStateManagement() {
+	pipelineObject.createPipelineCache();
+	const bool depthPresent = true;
+	
+	for (const auto& drawable : drawableList) {
+		VkPipeline* pipeline = (VkPipeline*)malloc(sizeof(VkPipeline));
+		if (pipelineObject.createPipeline(drawable, pipeline, &shaderObject, depthPresent)) {
+			pipelineList.push_back(pipeline);
+			drawable->setPipeline(pipeline);
+		}
+		else {
+			free(pipeline);
+			pipeline = nullptr;
+		}
+	}
+}
+
 void VulkanRenderer::deinitialize() {
 	VkCommandBuffer buffers[] = { commandDepthImage };
+
+	/* Pipeline */
+	for (const auto& pipeline : pipelineList) {
+		vkDestroyPipeline(*deviceObject->getVkDevice(), *pipeline, nullptr);
+		free(pipeline);
+	}
+	pipelineList.clear();
+
+	pipelineObject.destroyPipelineCache();
 
 	/* Frame buffer */
 	for (uint32_t i = 0; i < swapChainObject->swapChainPublicVariables.swapChainImageCount; ++i) {

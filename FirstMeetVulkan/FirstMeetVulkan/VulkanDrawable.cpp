@@ -78,7 +78,7 @@ void VulkanDrawable::prepare() {
 
 	drawCommands.resize(rendererObject->getSwapchain()->swapChainPublicVariables.colorBuffer.size());
 
-	for (size_t i = 0; i < rendererObject->getSwapchain()->swapChainPublicVariables.colorBuffer.size(); ++i) {
+	for (int i = 0; i < rendererObject->getSwapchain()->swapChainPublicVariables.colorBuffer.size(); ++i) {
 		CommandBufferManager::allocCommandBuffer(deviceObject->getVkDevice(), *rendererObject->getCommandPool() , &drawCommands[i]);
 		CommandBufferManager::beginCommandBuffer(drawCommands[i]);
 

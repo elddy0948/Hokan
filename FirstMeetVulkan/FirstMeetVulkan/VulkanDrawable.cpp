@@ -73,6 +73,28 @@ void VulkanDrawable::createVertexBuffer(const void* vertexData, uint32_t dataSiz
 	vertexInputAttribute[1].offset = 16;
 }
 
+
+void VulkanDrawable::initViewports(VkCommandBuffer* commandBuffer) {
+	viewport.height = static_cast<float>(rendererObject->height);
+	viewport.width = static_cast<float>(rendererObject->width);
+	viewport.minDepth = 0.0f;
+	viewport.maxDepth = 1.0f;
+	viewport.x = 0;
+	viewport.y = 0;
+
+	vkCmdSetViewport(*commandBuffer, 0, NUMBER_OF_VIEWPORTS, &viewport);
+}
+
+
+void VulkanDrawable::initScissors(VkCommandBuffer* commandBuffer) {
+	scissor.extent.width = rendererObject->height;
+	scissor.extent.width = rendererObject->width;
+	scissor.offset.x = 0;
+	scissor.offset.y = 0;
+
+	vkCmdSetScissor(*commandBuffer, 0, NUMBER_OF_SCISSORS, &scissor);
+}
+
 void VulkanDrawable::prepare() {
 	VulkanDevice* deviceObject = rendererObject->getDevice();
 
@@ -128,22 +150,14 @@ void VulkanDrawable::destroyVertexBuffer() {
 }
 
 void VulkanDrawable::recordCommandBuffer(int currentBuffer, VkCommandBuffer* drawCommand) {
+	VulkanDevice* deviceObject = rendererObject->getDevice();
+
 	VkClearValue clearValues[2];
 
-	switch (currentBuffer) {
-	case 0:
-		clearValues[0].color = { 1.0f, 0.0f, 0.0f, 1.0f };
-		break;
-	case 1:
-		clearValues[0].color = { 0.0f, 1.0f, 0.0f, 1.0f };
-		break;
-	case 2:
-		clearValues[0].color = { 0.0f, 0.0f, 1.0f, 1.0f };
-		break;
-	default:
-		clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
-		break;
-	}
+	clearValues[0].color.float32[0] = 0.0f;
+	clearValues[0].color.float32[1] = 0.0f;
+	clearValues[0].color.float32[2] = 0.0f;
+	clearValues[0].color.float32[3] = 0.0f;
 
 	clearValues[1].depthStencil.depth = 1.0f;
 	clearValues[1].depthStencil.stencil = 0;
@@ -161,5 +175,23 @@ void VulkanDrawable::recordCommandBuffer(int currentBuffer, VkCommandBuffer* dra
 	renderPassBegin.pClearValues = clearValues;
 
 	vkCmdBeginRenderPass(*drawCommand, &renderPassBegin, VK_SUBPASS_CONTENTS_INLINE);
+
+	// Commands
+
+	/* Bind command to graphics pipeline */
+	vkCmdBindPipeline(*drawCommand, VK_PIPELINE_BIND_POINT_GRAPHICS, *pipeline);
+	
+	/* Geometry Data */
+	const VkDeviceSize offsets[1] = { 0 };
+	vkCmdBindVertexBuffers(&drawCommand, 0, 1, &VertexBuffer.buffer, offsets);
+
+	/* Viewport */
+	initViewports(drawCommand);
+
+	/* Scissor */
+	initScissors(drawCommand);
+
+	vkCmdDraw(*drawCommand, 3, 1, 0, 0);
+
 	vkCmdEndRenderPass(*drawCommand);
 }

@@ -19,7 +19,13 @@ public:
 
 	void setPipeline(VkPipeline* pipeline) { this->pipeline = pipeline; }
 
+	void initViewports(VkCommandBuffer* commandBuffer);
+	void initScissors(VkCommandBuffer* commandBuffer);
+
+
 	void destroyVertexBuffer();
+	void destroyCommandBuffer();
+	void destroySynchronizationObjects();
 
 private:
 	void recordCommandBuffer(int currentBuffer, VkCommandBuffer* drawCommand);
@@ -38,6 +44,11 @@ private:
 	std::vector<VkCommandBuffer> drawCommands;
 	VulkanRenderer* rendererObject;
 	VkPipeline* pipeline;
+
+	VkViewport viewport;
+	VkRect2D scissor;
+	VkSemaphore presentCompleteSemaphore;
+	VkSemaphore drawingCompleteSemaphore;
 };
 
 

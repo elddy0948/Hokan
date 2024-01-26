@@ -183,7 +183,7 @@ void VulkanDrawable::recordCommandBuffer(int currentBuffer, VkCommandBuffer* dra
 	
 	/* Geometry Data */
 	const VkDeviceSize offsets[1] = { 0 };
-	vkCmdBindVertexBuffers(&drawCommand, 0, 1, &VertexBuffer.buffer, offsets);
+	vkCmdBindVertexBuffers(*drawCommand, 0, 1, &VertexBuffer.buffer, offsets);
 
 	/* Viewport */
 	initViewports(drawCommand);
